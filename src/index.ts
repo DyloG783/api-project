@@ -1,6 +1,6 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const productRoute = require('./routes/product.route.js')
+import express from "express";
+import mongoose from "mongoose";
+const router = require('./routes/product.route.ts');
 
 const app = express();
 
@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //routes
-app.use("/api/products", productRoute);
+app.use("/api/products", router);
 
 
 // connect to mongo and start server
@@ -18,7 +18,7 @@ mongoose.connect('mongodb+srv://dylanmcdigby:8EE16cegupgZ6raH@cluster0.hzmppoq.m
 
         console.log("Success connecting to db");
         app.listen(3000, () => {
-            console.log("Running on port 3000")
+            console.log("Running on port 3000!")
         });
     })
     .catch(() => {

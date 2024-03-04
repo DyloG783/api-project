@@ -25,3 +25,5 @@ mongoose.connect('mongodb+srv://dylanmcdigby:8EE16cegupgZ6raH@cluster0.hzmppoq.m
         console.log("Failed connecting to db");
     });
 
+module.exports = app;
+

@@ -1,10 +1,12 @@
 
 
 add authentication to write routes
+- salt passwords
+- add tests for auth state
 
 add security
 
-fix tests: stop server running after execution, setup/teardown test data direct in mongoose
+fix tests: stop server running after execution
 
 convert to TS
 

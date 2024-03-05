@@ -1,15 +1,21 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const productRoute = require('./routes/product.route.js')
+const express = require('express');
+const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
+
+const productRoute = require('./routes/product.route.js');
+const userRoute = require('./routes/user.route.js');
+const authRoute = require('./routes/auth.route.js');
 
 const app = express();
 
 //middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 //routes
 app.use("/api/products", productRoute);
+app.use("/api/user", userRoute);
+app.use("/api/auth", authRoute);
 
 
 // connect to mongo and start server
@@ -26,4 +32,3 @@ mongoose.connect('mongodb+srv://dylanmcdigby:8EE16cegupgZ6raH@cluster0.hzmppoq.m
     });
 
 module.exports = app;
-

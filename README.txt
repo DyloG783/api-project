@@ -2,7 +2,7 @@
 
 add authentication to write routes
 - salt passwords
-- add tests for auth state
+- add signup route
 
 add security
 

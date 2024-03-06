@@ -1,5 +1,5 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 
 const app = require('../index');
 const Product = require('../models/product.model.js');
@@ -22,20 +22,6 @@ describe('API Tests', () => {
             testProductId = product.id;
         } catch (error) {
             console.log("Failed creating test product from Mongoose...: ", error)
-        }
-
-        // create test user
-        try {
-            const user = await Product.create({
-                "name": "testuser",
-                "password": "password"
-            });
-
-            testUser = user;
-            console.log("Test user: ", testUser)
-
-        } catch (error) {
-            console.log("Failed creating test user from Mongoose...: ", error)
         }
     });
 
@@ -70,8 +56,6 @@ describe('API Tests', () => {
         expect(response.body.name).toBe('updated');
         expect(response.body._id).toBe(testProductId);
         expect(response.status).toBe(200);
-
-        // console.log("Update test body: ", response.body)
     });
 
     it('should return 200 and success delete message for DELETE /api/products/:id', async () => {
@@ -89,17 +73,5 @@ describe('API Tests', () => {
         } catch (error) {
             console.log("Failed deleting test product from Mongoose...: ", error)
         }
-
-        // delete test user
-        try {
-            await User.findByIdAndDelete(testUser.id);
-
-        } catch (error) {
-            console.log("Failed deleting test product from Mongoose...: ", error)
-        }
-
-        //trying to stop async operations
-        // app.closeServer();
-        // mongoose.connection.close(); 
     });
 });

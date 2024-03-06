@@ -8,10 +8,12 @@ const secretKey = 'your_secret_key';
 const login = async (req, res) => {
     // Authenticate user
     const { username, password } = req.body;
-    const user = await User.findOne({
-        username: username,
-        password: password
-    });
+
+    if (!username || !password) {
+        return res.status(400).send("Missing email or password from login request");
+    }
+
+    const user = await User.findOne({ username: username, password: password });
 
     if (!user) {
         return res.sendStatus(401); // Unauthorized

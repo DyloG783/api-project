@@ -1,4 +1,5 @@
 const User = require('../models/user.model.js');
+const { hashPassword } = require('../controllers/auth.controller.js');
 
 const getUser = async (req, res) => {
     try {
@@ -26,7 +27,18 @@ const getUsers = async (req, res) => {
 const createUser = async (req, res) => {
     try {
 
-        const user = await User.create(req.body);
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).send("Missing email or password from create user request");
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        const user = await User.create({
+            username: username,
+            password: hashedPassword
+        });
         res.status(200).json(user);
     } catch (error) {
         console.log(error)

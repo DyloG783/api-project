@@ -1,9 +1,3 @@
-
-
-add authentication to write routes
-- salt passwords
-- add signup route
-
 add security
 
 fix tests: stop server running after execution
@@ -16,4 +10,4 @@ add to github + resume
 
 ---
 
-Run JEST tests: npx jest
+Run JEST tests: npx jest (can't run all test suites as it tries to start server multiple times on same port)

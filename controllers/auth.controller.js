@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model.js');
-
-// Secret key for JWT signing
-const secretKey = 'your_secret_key';
+const bcrypt = require('bcrypt');
 
 // Login endpoint to generate JWT token
 const login = async (req, res) => {
@@ -13,14 +11,15 @@ const login = async (req, res) => {
         return res.status(400).send("Missing email or password from login request");
     }
 
-    const user = await User.findOne({ username: username, password: password });
+    const user = await User.findOne({ username: username });
+    const hashedPassword = user.password;
 
-    if (!user) {
+    if (! await comparePassword(password, hashedPassword)) {
         return res.sendStatus(401); // Unauthorized
     }
 
     // Generate JWT token
-    const token = jwt.sign({ username: user.username }, secretKey);
+    const token = jwt.sign({ username: user.username }, process.env.SECRET_KEY);
 
     // save jwt as cookie
     res.cookie('SESSIONTOKEN', token, { httpOnly: true });
@@ -45,6 +44,27 @@ function authenticateToken(req, res, next) {
     });
 }
 
+// Function to hash a password with a generated salt
+async function hashPassword(password) {
+    try {
+        const salt = await bcrypt.genSalt(2);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        return hashedPassword;
+    } catch (error) {
+        throw new Error('Error hashing password');
+    }
+}
+
+// Function to compare a plain text password with a hashed password
+async function comparePassword(plainPassword, hashedPassword) {
+    try {
+        const match = await bcrypt.compare(plainPassword, hashedPassword);
+        return match;
+    } catch (error) {
+        throw new Error('Error comparing passwords');
+    }
+}
+
 module.exports = {
-    login, authenticateToken
+    login, authenticateToken, hashPassword, comparePassword
 }

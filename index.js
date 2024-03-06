@@ -1,7 +1,9 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
-require('dotenv').config();
+const cors = require('cors');
 
 const productRoute = require('./routes/product.route.js');
 const userRoute = require('./routes/user.route.js');
@@ -13,13 +15,19 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+//security
+app.use(cors({
+    origin: "http:localhost:3000",
+    methods: ["GET", "PUT", "POST"]
+}))
+
 //routes
 app.use("/api/products", productRoute);
 app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
 
 
-// connect to mongo and start server
+//connect to mongo and start server
 mongoose.connect('mongodb+srv://dylanmcdigby:8EE16cegupgZ6raH@cluster0.hzmppoq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
     .then(() => {
 

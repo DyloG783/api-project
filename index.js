@@ -3,7 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
-const cors = require('cors');
+const { appCors } = require('./middleware/security/cors.middleware.js');
+const { rateLimiter } = require('./middleware/security/rateLimiter.middleware.js');
 
 const productRoute = require('./routes/product.route.js');
 const userRoute = require('./routes/user.route.js');
@@ -16,10 +17,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 //security
-app.use(cors({
-    origin: "http:localhost:3000",
-    methods: ["GET", "PUT", "POST"]
-}))
+app.use(appCors);
+app.use(rateLimiter);
 
 //routes
 app.use("/api/products", productRoute);

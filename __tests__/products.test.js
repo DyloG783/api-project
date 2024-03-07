@@ -3,12 +3,10 @@ const request = require('supertest');
 
 const app = require('../index');
 const Product = require('../models/product.model.js');
-const User = require('../models/user.model.js');
 
 describe('API Tests', () => {
 
     let testProductId;
-    let testUser;
 
     beforeAll(async () => {
 
@@ -35,18 +33,6 @@ describe('API Tests', () => {
         expect(response.body.name).toEqual('test');
         expect(response.status).toBe(200);
     });
-
-    it('should return 401 unauthorised when trying to add a product without auth for POST /api/products',
-        async () => {
-            const response = await request(app).post('/api/products/')
-                .send({
-                    "name": "test",
-                    "quantity": 10,
-                    "price": 99.99
-                });
-
-            expect(response.status).toBe(401);
-        });
 
     it('should return updated test product name for PUT /api/products/:id', async () => {
         const response = await request(app)

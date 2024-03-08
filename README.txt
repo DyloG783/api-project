@@ -24,8 +24,6 @@ Logging and Monitoring: Log API activities and monitor for suspicious behavior o
 Security Headers: Utilize security headers such as Content Security Policy (CSP), X-Content-Type-Options, X-Frame-Options, and X-XSS-Protection to mitigate common web security vulnerabilities.
 
 
-add sign up
-
 fix tests: stop server running after execution
 
 convert to TS
@@ -38,4 +36,4 @@ add to github + resume
 
 ---
 
-Run JEST tests: npx jest (can't run all test suites as it tries to start server multiple times on same port)
+Run JEST tests: npx jest [filename] (can't run all test suites as it tries to start server multiple times on same port)

@@ -3,6 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const morgan = require("morgan");
+const fs = require('fs');
+const path = require('path');
 const { appCors } = require('./middleware/security/cors.middleware.js');
 const { rateLimiter } = require('./middleware/security/rateLimiter.middleware.js');
 
@@ -12,9 +15,15 @@ const authRoute = require('./routes/auth.route.js');
 
 const app = express();
 
+const PORT = process.env.PORT || "3000";
+
+//logging to local file
+const accessLogStream = fs.createWriteStream(path.join(__dirname, './logs/access.log'), { flags: 'a' })
+
 //middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(morgan('combined', { stream: accessLogStream }));
 
 //security
 app.use(appCors);
@@ -31,7 +40,7 @@ mongoose.connect('mongodb+srv://dylanmcdigby:8EE16cegupgZ6raH@cluster0.hzmppoq.m
     .then(() => {
 
         console.log("Success connecting to db");
-        app.listen(3000, () => {
+        app.listen(PORT, () => {
             console.log("Running on port 3000")
         });
     })

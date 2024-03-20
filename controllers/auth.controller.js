@@ -4,9 +4,9 @@ const bcrypt = require('bcrypt');
 
 // Login endpoint to generate JWT token
 const login = async (req, res) => {
+
     // Authenticate user
     const { username, password } = req.body;
-
     if (!username || !password) {
         return res.status(400).send("Missing email or password from login request");
     }
@@ -18,36 +18,46 @@ const login = async (req, res) => {
         return res.sendStatus(401); // Unauthorized
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ username: user.username }, process.env.SECRET_KEY);
+    // Generate JWT access token
+    const access_token = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '30s'
+    });
+
+    // Generate JWT refresh token
+    const refresh_token = jwt.sign({ username: user.username }, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: '1d'
+    });
+
+    // save refresh token with user in database
+    await User.findByIdAndUpdate(user._id, { refresh_token: refresh_token })
 
     // save jwt as cookie
-    res.cookie('SESSIONTOKEN', token, { httpOnly: true });
-    res.json({ token });
-    // res.end();
+    res.cookie('SESSIONTOKEN', refresh_token, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
+    res.json({ access_token });
 };
 
 // Middleware for authentication
 function authenticateToken(req, res, next) {
-    const token = req.cookies.SESSIONTOKEN;
 
-    if (!token) {
-        return res.sendStatus(401); // Unauthorized
-    }
-
-    jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
-        if (err) {
-            return res.sendStatus(403); // Forbidden
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.sendStatus(401);
+    // console.log("auth header: ", authHeader); // Bearer token
+    const token = authHeader.split(' ')[1];
+    jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET,
+        (err, decoded) => {
+            if (err) return res.status(403).send("Invalid access token"); //invalid token
+            req.user = decoded.username;
+            next();
         }
-        req.user = user;
-        next();
-    });
+    );
 }
 
 // Function to hash a password with a generated salt
 async function hashPassword(password) {
     try {
-        const salt = await bcrypt.genSalt(2);
+        const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         return hashedPassword;
     } catch (error) {
@@ -65,6 +75,62 @@ async function comparePassword(plainPassword, hashedPassword) {
     }
 }
 
+// refreshToken
+const refreshToken = async (req, res) => {
+
+    const token = req.cookies.SESSIONTOKEN;
+
+    if (!token) {
+        return res.status(401).send("No cookie called 'SESSIONTOKEN' found."); // Unauthorized
+    }
+
+    // find user by refresh token
+    try {
+        const user = await User.findOne({ refresh_token: token });
+
+        jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+            if (err || decoded.username !== user.username) {
+                return res.status(403).send("Failed jwt verification."); // Forbidden
+            }
+            const accessToken = jwt.sign(
+                { "username": decoded.username },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: '30s' }
+            );
+            res.json({ accessToken })
+        });
+    } catch (error) {
+        console.log("Failed finding user by refresh token.");
+    }
+}
+
+const logout = async (req, res) => {
+    const token = req.cookies.SESSIONTOKEN;
+
+    if (!token) {
+        return res.sendStatus(204); // Not signed in
+    }
+
+    // delete user's refresh token in db
+    try {
+        const user = await User.findOne({ refresh_token: token });
+        console.log(user)
+        await User.findByIdAndUpdate(user._id, { refresh_token: null })
+
+    } catch (error) {
+        console.log("Failed clearing refresh token in db. ", error);
+    }
+
+    // delete user's refresh token cookie
+    try {
+        res.clearCookie('SESSIONTOKEN') // may need to remove secure?
+    } catch (error) {
+        console.log("Failed clearing refresh token cookie. ", error);
+    }
+
+    res.send(200);
+}
+
 module.exports = {
-    login, authenticateToken, hashPassword, comparePassword
+    login, authenticateToken, hashPassword, comparePassword, refreshToken, logout
 }

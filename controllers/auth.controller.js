@@ -15,11 +15,17 @@ const login = async (req, res) => {
     const hashedPassword = user.password;
 
     if (! await comparePassword(password, hashedPassword)) {
-        return res.sendStatus(401); // Unauthorized
+        return res.sendStatus(401).json({ 'message': 'Incorrect password.' }); // Unauthorized
     }
 
     // Generate JWT access token
-    const access_token = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
+    const access_token = jwt.sign({
+        "UserInfo": {
+            username: user.username,
+            roles: user.roles
+        }
+    },
+        process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '30s'
     });
 
@@ -39,16 +45,38 @@ const login = async (req, res) => {
 // Middleware for authentication
 function authenticateToken(req, res, next) {
 
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) return res.sendStatus(401);
-    // console.log("auth header: ", authHeader); // Bearer token
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (!authHeader?.startsWith('Bearer ')) return res.sendStatus(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
     const token = authHeader.split(' ')[1];
     jwt.verify(
         token,
         process.env.ACCESS_TOKEN_SECRET,
         (err, decoded) => {
             if (err) return res.status(403).send("Invalid access token"); //invalid token
-            req.user = decoded.username;
+            req.user = decoded.UserInfo.username;
+            next();
+        }
+    );
+}
+
+// admin role check
+function verifyAdmin(req, res, next) {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (!authHeader?.startsWith('Bearer ')) return res.sendStatus(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET,
+        (err, decoded) => {
+            if (err) return res.status(403).send("Invalid access token"); //invalid token
+            // req.user = decoded.UserInfo.username;
+            const roles = decoded.UserInfo.roles
+            // console.log("ROLES: ", roles);
+            // console.log("ROLES type: ", typeof roles);
+            if (!roles.find(role => role === 2)) return res.status(403).send("No ADMIN role found on user")
+            req.roles = decoded.UserInfo.roles;
+            req.roles = decoded.UserInfo.username;
             next();
         }
     );
@@ -75,7 +103,7 @@ async function comparePassword(plainPassword, hashedPassword) {
     }
 }
 
-// refreshToken
+// refreshToken returning access token as json
 const refreshToken = async (req, res) => {
 
     const token = req.cookies.SESSIONTOKEN;
@@ -93,7 +121,12 @@ const refreshToken = async (req, res) => {
                 return res.status(403).send("Failed jwt verification."); // Forbidden
             }
             const accessToken = jwt.sign(
-                { "username": decoded.username },
+                {
+                    "UserInfo": {
+                        username: user.username,
+                        roles: user.roles
+                    }
+                },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '30s' }
             );
@@ -132,5 +165,5 @@ const logout = async (req, res) => {
 }
 
 module.exports = {
-    login, authenticateToken, hashPassword, comparePassword, refreshToken, logout
+    login, authenticateToken, hashPassword, comparePassword, refreshToken, logout, verifyAdmin
 }

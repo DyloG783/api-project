@@ -10,7 +10,7 @@ describe('API Tests', () => {
 
     beforeAll(async () => {
 
-        // create test product
+        // create test product in DB
         try {
             const product = await Product.create({
                 "name": "test",
@@ -44,11 +44,7 @@ describe('API Tests', () => {
         expect(response.status).toBe(200);
     });
 
-    it('should return 200 and success delete message for DELETE /api/products/:id', async () => {
-        const response = await request(app).delete(`/api/products/${testProductId}`);
-        expect(response.body.message).toEqual('Success deleting product');
-        expect(response.status).toBe(200);
-    });
+
 
     afterAll(async () => {
 

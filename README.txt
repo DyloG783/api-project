@@ -6,8 +6,8 @@ Authentication:
 - Using 'jsonwebtoken' package for client side authentication.
 
 Authorization: 
-!add roles for higher routes. Enforce access controls to ensure that authenticated users have the appropriate permissions to access specific resources within the API. Role-based access control (RBAC) or attribute-based access control (ABAC) can be used for this purpose.
 - Using 'jsonwebtoken' package for refresh tokens and access tokens which the latter are used to authorize protected routes.
+- Using 'jsonwebtoken' package for role based authorization.
 
 Input Validation: Validate and sanitize all input received from clients to prevent injection attacks such as SQL injection, XSS (Cross-Site Scripting), and CSRF (Cross-Site Request Forgery).
 

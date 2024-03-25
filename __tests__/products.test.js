@@ -12,6 +12,19 @@ describe('API Tests', () => {
 
         // create test product in DB
         try {
+
+            // check if test data already exists and from db if it already exists
+            const testProduct = await Product.findOne({ name: 'test' })
+            if (testProduct) {
+                await Product.findOneAndDelete(testProduct)
+            };
+
+            // check if test data already exists and from db if it already exists
+            const testProductUpdated = await Product.findOne({ name: 'updated' })
+            if (testProductUpdated) {
+                await Product.findOneAndDelete(testProductUpdated)
+            };
+
             const product = await Product.create({
                 "name": "test",
                 "quantity": 10,
@@ -30,6 +43,7 @@ describe('API Tests', () => {
 
     it('should return test product for GET /api/products/:id', async () => {
         const response = await request(app).get(`/api/products/${testProductId}`);
+        // console.log("TEST BODY", response.body)
         expect(response.body.name).toEqual('test');
         expect(response.status).toBe(200);
     });
@@ -39,6 +53,7 @@ describe('API Tests', () => {
             .put(`/api/products/${testProductId}`)
             .send({ "name": "updated" });
 
+        // console.log("TEST BODY", response.body)
         expect(response.body.name).toBe('updated');
         expect(response.body._id).toBe(testProductId);
         expect(response.status).toBe(200);

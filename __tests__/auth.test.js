@@ -9,8 +9,7 @@ const app = require('../index');
 describe('Authentication & authorization API Tests', () => {
 
     let testUser;
-    const testUserPassword = 'password';
-    let access_token;
+    let access_token_user;
     // let refresh_token;
     let createdProductId;
     const testProductToCreate = {
@@ -29,7 +28,12 @@ describe('Authentication & authorization API Tests', () => {
 
         // create test user
         try {
-            const hashedPassword = await hashPassword(testUserPassword);
+
+            //check if test user already exists and delete if so
+            existingtestUser = await User.findOne({ username: 'testuser' });
+            if (existingtestUser) await User.findOneAndDelete(existingtestUser);
+
+            const hashedPassword = await hashPassword('password');
 
             testUser = await User.create({
                 "username": "testuser",
@@ -41,8 +45,21 @@ describe('Authentication & authorization API Tests', () => {
         }
 
         try {
-            //create valid authentication token for test user
-            access_token = jwt.sign(
+            //create valid authentication token for test user role
+            access_token_user = jwt.sign(
+                {
+                    UserInfo: {
+                        username: testUser.username,
+                        roles: [1]
+                    }
+                },
+                process.env.ACCESS_TOKEN_SECRET,
+                {
+                    expiresIn: '1m'
+                }
+            );
+
+            access_token_admin = jwt.sign(
                 {
                     UserInfo: {
                         username: testUser.username,
@@ -56,11 +73,18 @@ describe('Authentication & authorization API Tests', () => {
             );
 
         } catch (error) {
-            console.log("Signing test jwt...: ", error)
+            console.log("Failed signing test jwts...: ", error)
         }
 
         // create test product
         try {
+
+            // check if test data already exists and from db if it already exists
+            const testProduct = await Product.findOne({ name: 'test' })
+            if (testProduct) {
+                await Product.findOneAndDelete(testProduct)
+            };
+
             const createdProduct = await Product.create({
                 "name": "test",
                 "quantity": 10,
@@ -81,7 +105,7 @@ describe('Authentication & authorization API Tests', () => {
 
         // delete test user
         try {
-            await User.findByIdAndDelete(testUser.id);
+            await User.findOneAndDelete({ username: 'testuser' });
 
         } catch (error) {
             console.log("Failed deleting test product from Mongoose...: ", error)
@@ -94,29 +118,20 @@ describe('Authentication & authorization API Tests', () => {
         } catch (error) {
             console.log("Failed deleting new test product from Mongoose...: ", error)
         }
-
-        // delete test product
-        try {
-            await Product.findByIdAndDelete(testProductId);
-
-        } catch (error) {
-            console.log("Failed deleting test product from Mongoose...: ", error)
-        }
     });
 
-    it('should set cookie upon login POST /api/auth/', async () => {
+    it('should set REFRESH_TOKEN cookie and return 200 upon login POST /api/auth/', async () => {
         const response = await request(app).post('/api/auth/')
             .send({
                 "username": `${testUser.username}`,
-                "password": `${testUserPassword}`
+                "password": `password`
             });
 
         expect(response.status).toBe(200);
-        // expect(response.header["set-cookie"]).toStrictEqual([`SESSIONTOKEN=${token}; Path=/; HttpOnly`]);
-        expect(response.header["set-cookie"]).toBeDefined();
+        expect(response.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
     });
 
-    it('should return 401 unauthorised when trying to add a product without authentication for POST /api/products',
+    it('should return 401 unauthorised when trying to add a product without authorisation for POST /api/products',
         async () => {
             const response = await request(app).post('/api/products/')
                 .send(testProductToCreate);
@@ -125,23 +140,27 @@ describe('Authentication & authorization API Tests', () => {
         }
     );
 
-    it('should return 200 when trying to add a product while authenticated for POST /api/products',
+    it('should return 200 when trying to add a product while authorised for POST /api/products',
         async () => {
             const response = await request(app).post('/api/products/')
-                .set('authorization', `Bearer ${access_token}`)
+                .set('authorization', `Bearer ${access_token_user}`)
                 .send(testProductToCreate);
 
-            // console.log("access token: ", access_token);
-            // console.log("response: ", response);
-
-            // expect(response.header["authorization"]).toBeDefined();
             expect(response.status).toBe(200);
         }
     );
 
-    it('should return 200 and success delete message for DELETE /api/products/:id', async () => {
+    it('should return 403 with a non admin user for DELETE /api/products/:id', async () => {
         const response = await request(app).delete(`/api/products/${createdProductId}`)
-            .set('authorization', `Bearer ${access_token}`);
+            .set('authorization', `Bearer ${access_token_user}`);
+
+        expect(response.body.message).toEqual('No ADMIN role found on user');
+        expect(response.status).toBe(403);
+    });
+
+    it('should return 200 with an admin user for DELETE /api/products/:id', async () => {
+        const response = await request(app).delete(`/api/products/${createdProductId}`)
+            .set('authorization', `Bearer ${access_token_admin}`);
 
         expect(response.body.message).toEqual('Success deleting product');
         expect(response.status).toBe(200);
@@ -154,23 +173,15 @@ describe('Authentication & authorization API Tests', () => {
             const login = await request(app).post('/api/auth/')
                 .send({
                     "username": `${testUser.username}`,
-                    "password": `${testUserPassword}`
+                    "password": `password`
                 });
 
-            // console.log("LOGIN: ", login)
             expect(login.status).toBe(200);
-            expect(login.header["set-cookie"]).toBeDefined();
+            expect(login.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
 
-
-            // console.log("STATUS1: ", login.status)
+            //sign out
             const response = await request(app).get('/api/auth/logout');
-
             expect(response.header["set-cookie"]).toBeUndefined();
-
-            // console.log("STATUS2: ", response.status)
-            // expect(response.status).toBe(200);
         }
     );
-
-
 });

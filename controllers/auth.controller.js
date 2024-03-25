@@ -8,14 +8,14 @@ const login = async (req, res) => {
     // Authenticate user
     const { username, password } = req.body;
     if (!username || !password) {
-        return res.status(400).send("Missing email or password from login request");
+        return res.status(400).json({ "message": "Missing email or password from login request" });
     }
 
     const user = await User.findOne({ username: username });
     const hashedPassword = user.password;
 
     if (! await comparePassword(password, hashedPassword)) {
-        return res.sendStatus(401).json({ 'message': 'Incorrect password.' }); // Unauthorized
+        return res.status(401).json({ 'message': 'Incorrect password.' }); // Unauthorized
     }
 
     // Generate JWT access token
@@ -38,21 +38,21 @@ const login = async (req, res) => {
     await User.findByIdAndUpdate(user._id, { refresh_token: refresh_token })
 
     // save jwt as cookie
-    res.cookie('SESSIONTOKEN', refresh_token, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
+    res.cookie('REFRESH_TOKEN', refresh_token, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
     res.json({ access_token });
 };
 
-// Middleware for authentication
+// Middleware for authorisation
 function authenticateToken(req, res, next) {
 
     const authHeader = req.headers.authorization || req.headers.Authorization;
-    if (!authHeader?.startsWith('Bearer ')) return res.sendStatus(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
+    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
     const token = authHeader.split(' ')[1];
     jwt.verify(
         token,
         process.env.ACCESS_TOKEN_SECRET,
         (err, decoded) => {
-            if (err) return res.status(403).send("Invalid access token"); //invalid token
+            if (err) return res.status(403).json({ "message": "Invalid access token" });
             req.user = decoded.UserInfo.username;
             next();
         }
@@ -62,19 +62,19 @@ function authenticateToken(req, res, next) {
 // admin role check
 function verifyAdmin(req, res, next) {
     const authHeader = req.headers.authorization || req.headers.Authorization;
-    if (!authHeader?.startsWith('Bearer ')) return res.sendStatus(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
+    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
     const token = authHeader.split(' ')[1];
 
     jwt.verify(
         token,
         process.env.ACCESS_TOKEN_SECRET,
         (err, decoded) => {
-            if (err) return res.status(403).send("Invalid access token"); //invalid token
+            if (err) return res.status(403).json({ "message": "Invalid access token" }); //invalid token
             // req.user = decoded.UserInfo.username;
-            const roles = decoded.UserInfo.roles
+            const roles = decoded.UserInfo.roles;
             // console.log("ROLES: ", roles);
             // console.log("ROLES type: ", typeof roles);
-            if (!roles.find(role => role === 2)) return res.status(403).send("No ADMIN role found on user")
+            if (!roles.find(role => role === 2)) return res.status(403).json({ "message": "No ADMIN role found on user" })
             req.roles = decoded.UserInfo.roles;
             req.roles = decoded.UserInfo.username;
             next();
@@ -82,7 +82,7 @@ function verifyAdmin(req, res, next) {
     );
 }
 
-// Function to hash a password with a generated salt
+// Hash a plain text password with a generated salt
 async function hashPassword(password) {
     try {
         const salt = await bcrypt.genSalt(10);
@@ -106,10 +106,10 @@ async function comparePassword(plainPassword, hashedPassword) {
 // refreshToken returning access token as json
 const refreshToken = async (req, res) => {
 
-    const token = req.cookies.SESSIONTOKEN;
+    const token = req.cookies.REFRESH_TOKEN;
 
     if (!token) {
-        return res.status(401).send("No cookie called 'SESSIONTOKEN' found."); // Unauthorized
+        return res.status(401).send("No cookie called 'REFRESH_TOKEN' found."); // Unauthorized
     }
 
     // find user by refresh token
@@ -138,7 +138,7 @@ const refreshToken = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-    const token = req.cookies.SESSIONTOKEN;
+    const token = req.cookies.REFRESH_TOKEN;
 
     if (!token) {
         return res.sendStatus(204); // Not signed in
@@ -147,7 +147,7 @@ const logout = async (req, res) => {
     // delete user's refresh token in db
     try {
         const user = await User.findOne({ refresh_token: token });
-        console.log(user)
+        // console.log(user)
         await User.findByIdAndUpdate(user._id, { refresh_token: null })
 
     } catch (error) {
@@ -156,12 +156,12 @@ const logout = async (req, res) => {
 
     // delete user's refresh token cookie
     try {
-        res.clearCookie('SESSIONTOKEN') // may need to remove secure?
+        res.clearCookie('REFRESH_TOKEN') // may need to remove secure?
     } catch (error) {
         console.log("Failed clearing refresh token cookie. ", error);
     }
 
-    res.send(200);
+    res.sendStatus(200);
 }
 
 module.exports = {

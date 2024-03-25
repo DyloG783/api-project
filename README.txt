@@ -37,5 +37,3 @@ add to github + resume
 
 ---
 
-Run JEST tests: npx jest [filename] (can't run all test suites as it tries to start server multiple times on same port)
-

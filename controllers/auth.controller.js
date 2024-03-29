@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model.js');
-const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const { comparePassword } = require('../util/comparePassword.js');
+
+let csrfToken;
 
 // Login endpoint to generate JWT token
 const login = async (req, res) => {
@@ -15,8 +18,10 @@ const login = async (req, res) => {
     const hashedPassword = user.password;
 
     if (! await comparePassword(password, hashedPassword)) {
-        return res.status(401).json({ 'message': 'Incorrect password.' }); // Unauthorized
+        return res.status(401).json({ 'message': 'Incorrect password.' });
     }
+
+    csrfToken = crypto.randomUUID();
 
     // Generate JWT access token
     const access_token = jwt.sign({
@@ -30,7 +35,13 @@ const login = async (req, res) => {
     });
 
     // Generate JWT refresh token
-    const refresh_token = jwt.sign({ username: user.username }, process.env.REFRESH_TOKEN_SECRET, {
+    const refresh_token = jwt.sign({
+        "RefreshInfo": {
+            username: user.username,
+            csrf: csrfToken
+        }
+    },
+        process.env.REFRESH_TOKEN_SECRET, {
         expiresIn: '1d'
     });
 
@@ -38,70 +49,10 @@ const login = async (req, res) => {
     await User.findByIdAndUpdate(user._id, { refresh_token: refresh_token })
 
     // save jwt as cookie
-    res.cookie('REFRESH_TOKEN', refresh_token, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
-    res.json({ access_token });
+    res.cookie('REFRESH_TOKEN', refresh_token, { httpOnly: true, sameSite: 'strict', secure: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day
+    res.json({ access_token, csrfToken });
+    // res.json({ access_token});
 };
-
-// Middleware for authorisation
-function authenticateToken(req, res, next) {
-
-    const authHeader = req.headers.authorization || req.headers.Authorization;
-    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
-    const token = authHeader.split(' ')[1];
-    jwt.verify(
-        token,
-        process.env.ACCESS_TOKEN_SECRET,
-        (err, decoded) => {
-            if (err) return res.status(403).json({ "message": "Invalid access token" });
-            req.user = decoded.UserInfo.username;
-            next();
-        }
-    );
-}
-
-// admin role check
-function verifyAdmin(req, res, next) {
-    const authHeader = req.headers.authorization || req.headers.Authorization;
-    if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ 'message': 'No Bearer auth header found in "authenticateToken".' });
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(
-        token,
-        process.env.ACCESS_TOKEN_SECRET,
-        (err, decoded) => {
-            if (err) return res.status(403).json({ "message": "Invalid access token" }); //invalid token
-            // req.user = decoded.UserInfo.username;
-            const roles = decoded.UserInfo.roles;
-            // console.log("ROLES: ", roles);
-            // console.log("ROLES type: ", typeof roles);
-            if (!roles.find(role => role === 2)) return res.status(403).json({ "message": "No ADMIN role found on user" })
-            req.roles = decoded.UserInfo.roles;
-            req.roles = decoded.UserInfo.username;
-            next();
-        }
-    );
-}
-
-// Hash a plain text password with a generated salt
-async function hashPassword(password) {
-    try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        return hashedPassword;
-    } catch (error) {
-        throw new Error('Error hashing password');
-    }
-}
-
-// Function to compare a plain text password with a hashed password
-async function comparePassword(plainPassword, hashedPassword) {
-    try {
-        const match = await bcrypt.compare(plainPassword, hashedPassword);
-        return match;
-    } catch (error) {
-        throw new Error('Error comparing passwords');
-    }
-}
 
 // refreshToken returning access token as json
 const refreshToken = async (req, res) => {
@@ -117,26 +68,18 @@ const refreshToken = async (req, res) => {
         const user = await User.findOne({ refresh_token: token });
 
         jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-            if (err || decoded.username !== user.username) {
+            if (err || decoded.RefreshInfo.username !== user.username) {
                 return res.status(403).send("Failed jwt verification."); // Forbidden
             }
-            const accessToken = jwt.sign(
-                {
-                    "UserInfo": {
-                        username: user.username,
-                        roles: user.roles
-                    }
-                },
-                process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: '30s' }
-            );
-            res.json({ accessToken })
+            const accessToken = jwt.sign({ "UserInfo": { username: user.username, roles: user.roles } }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30s' });
+            res.json({ accessToken });
         });
     } catch (error) {
         console.log("Failed finding user by refresh token.");
     }
-}
+};
 
+// sets users refresh token to null in db, and deletes cookie from browser
 const logout = async (req, res) => {
     const token = req.cookies.REFRESH_TOKEN;
 
@@ -162,8 +105,13 @@ const logout = async (req, res) => {
     }
 
     res.sendStatus(200);
-}
+};
+
+// because token is stored here in app it needs to be passed dynamically for csrf middleware
+const returnCsrfToken = () => {
+    return csrfToken;
+};
 
 module.exports = {
-    login, authenticateToken, hashPassword, comparePassword, refreshToken, logout, verifyAdmin
-}
+    login, refreshToken, logout, returnCsrfToken
+};

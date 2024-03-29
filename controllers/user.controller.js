@@ -1,5 +1,5 @@
 const User = require('../models/user.model.js');
-const { hashPassword } = require('../controllers/auth.controller.js');
+const { hashPassword } = require('../util/hashPassword.js');
 
 const getUser = async (req, res) => {
     try {
@@ -11,7 +11,7 @@ const getUser = async (req, res) => {
         console.log(error)
         res.status(500).json({ message: error.message })
     }
-}
+};
 
 const getUsers = async (req, res) => {
     try {
@@ -22,7 +22,7 @@ const getUsers = async (req, res) => {
         console.log(error)
         res.status(500).json({ message: error.message })
     }
-}
+};
 
 const createUser = async (req, res) => {
     try {
@@ -44,8 +44,8 @@ const createUser = async (req, res) => {
         console.log(error)
         res.status(500).json({ message: error.message })
     }
-}
+};
 
 module.exports = {
     getUser, getUsers, createUser
-}
+};

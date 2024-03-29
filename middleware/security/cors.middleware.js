@@ -5,7 +5,6 @@ const corsOptions = {
     methods: ["GET", "PUT", "POST"]
 }
 
-// const appCors = () => { return cors(corsOptions) };
 const appCors = cors(corsOptions);
 
 module.exports = { appCors };

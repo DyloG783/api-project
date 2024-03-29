@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const express = require('express');
-const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const morgan = require("morgan");
 const fs = require('fs');
@@ -32,14 +31,4 @@ app.use("/api/products", productRoute);
 app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
 
-
-//connect to mongo
-mongoose.connect('mongodb+srv://dylanmcdigby:8EE16cegupgZ6raH@cluster0.hzmppoq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-    .then(() => {
-        console.log("Success connecting to db");
-    })
-    .catch(() => {
-        console.log("Failed connecting to db");
-    });
-
-module.exports = app;
+module.exports = { app };

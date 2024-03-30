@@ -36,10 +36,16 @@ add to github + resume
 
 ---
 
-unit test;
-- controllers (mock db?)
-- routes (mock controllers)?
+expand integration tests
 
 - add csrf middleware to all routes in main app.js
 - how to move csrf middleware out of auth controller?
     - try move csrf token to main app and export to be used in middleware???
+
+
+unit test middle ware
+only happy path controller tests...
+
+unit test;
+- controllers (mock db?)
+- routes (mock controllers)?

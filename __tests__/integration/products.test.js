@@ -7,6 +7,11 @@ const { app } = require('../../app');
 describe('API Tests', () => {
 
     let testProductId;
+    let testProduct = {
+        "name": "test_product",
+        "quantity": 10,
+        "price": 99.99
+    };
 
     beforeAll(async () => {
 
@@ -21,11 +26,7 @@ describe('API Tests', () => {
         // create test product in DB
         try {
 
-            const product = await Product.create({
-                "name": "test_product",
-                "quantity": 10,
-                "price": 99.99
-            });
+            const product = await Product.create(testProduct);
             testProductId = product.id;
         } catch (error) {
             console.log("Failed creating test product from Mongoose...: ", error);
@@ -34,7 +35,6 @@ describe('API Tests', () => {
     });
 
     afterAll(async () => {
-
         await mongoose.connection.dropDatabase();
         await mongoose.connection.close();
     });
@@ -42,7 +42,7 @@ describe('API Tests', () => {
     it('should return status 200 for GET /api/products', async () => {
         const response = await request(app).get('/api/products/');
         expect(response.status).toBe(200);
-        // expect(response.body).to;
+        expect(response.body).toMatchObject([testProduct]);
     });
 
     it('should return test product for GET /api/products/:id', async () => {

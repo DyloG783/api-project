@@ -37,8 +37,7 @@ const login = async (req, res) => {
     // Generate JWT refresh token
     const refresh_token = jwt.sign({
         "RefreshInfo": {
-            username: user.username,
-            csrf: csrfToken
+            username: user.username
         }
     },
         process.env.REFRESH_TOKEN_SECRET, {
@@ -99,7 +98,7 @@ const logout = async (req, res) => {
 
     // delete user's refresh token cookie
     try {
-        res.clearCookie('REFRESH_TOKEN') // may need to remove secure?
+        res.clearCookie('REFRESH_TOKEN')
     } catch (error) {
         console.log("Failed clearing refresh token cookie. ", error);
     }

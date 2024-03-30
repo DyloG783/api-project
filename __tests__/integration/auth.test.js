@@ -3,17 +3,15 @@ const jwt = require('jsonwebtoken');
 const { hashPassword } = require('../../util/hashPassword.js');
 const Product = require('../../models/product.model.js');
 const User = require('../../models/user.model.js');
-const crypto = require('crypto');
-const csrfToken = crypto.randomUUID();
 const mongoose = require('mongoose');
-
 const { app } = require('../../app');
 
 describe('Authentication & authorization API Tests', () => {
 
     let testUser;
     let access_token_user;
-    let refresh_token;
+    let access_token_admin;
+    let access_token_corrupt;
 
     beforeAll(async () => {
 
@@ -68,20 +66,24 @@ describe('Authentication & authorization API Tests', () => {
                 }
             );
 
+            access_token_corrupt = jwt.sign(
+                {
+                    UserInfo: {
+                        username: testUser.username,
+                        roles: [1]
+                    }
+                },
+                "notValidAccessTokenSecret",
+                {
+                    expiresIn: '1m'
+                }
+            );
+
         } catch (error) {
             console.log("Failed signing test jwts...: ", error)
         }
 
-        // Generate JWT refresh token
-        refresh_token = jwt.sign({
-            "RefreshInfo": {
-                username: testUser.username,
-                csrf: csrfToken
-            }
-        },
-            process.env.REFRESH_TOKEN_SECRET, {
-            expiresIn: '1d'
-        });
+
     });
 
     afterAll(async () => {
@@ -90,35 +92,7 @@ describe('Authentication & authorization API Tests', () => {
         await mongoose.connection.close();
     });
 
-    it('should set REFRESH_TOKEN cookie and return 200 upon login POST /api/auth/', async () => {
-        const response = await request(app).post('/api/auth/')
-            .send({
-                "username": `${testUser.username}`,
-                "password": `password`
-            });
 
-        expect(response.status).toBe(200);
-        expect(response.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
-    });
-
-    it('should remove refresh token cookie when logging out user on /api/auth/logout',
-        async () => {
-
-            //sign in
-            const login = await request(app).post('/api/auth/')
-                .send({
-                    "username": `${testUser.username}`,
-                    "password": `password`
-                });
-
-            expect(login.status).toBe(200);
-            expect(login.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
-
-            //sign out
-            const response = await request(app).get('/api/auth/logout');
-            expect(response.header["set-cookie"]).toBeUndefined();
-        }
-    );
 
     describe('product related auth tests', () => {
 
@@ -143,27 +117,21 @@ describe('Authentication & authorization API Tests', () => {
             }
         });
 
-        it('should return 401 unauthorised when trying to add a product without authorisation for POST /api/products',
-            async () => {
-                const response = await request(app).post('/api/products/')
-                    .send(testProductToCreate);
-
-                expect(response.status).toBe(401);
-            }
-        );
-
-        it.skip('should return 200 when trying to add a product while authorised for POST /api/products',
+        it('should return 401 unauthorised when trying to add a product without csrf in body for POST /api/products',
             async () => {
                 const response = await request(app).post('/api/products/')
                     .set('authorization', `Bearer ${access_token_user}`)
-                    .set('Cookie', [`REFRESH_TOKEN=${refresh_token}`])// CHECK ON THIS
-                    .send(testProductToCreate);
+                    .send({
+                        "data": testProductToCreate
+                    });
 
-                expect(response.status).toBe(200);
+                expect(response.status).toBe(401);
+                expect(response.error.text).toEqual('No csrf in body');
+
             }
         );
 
-        it('should return updated test product name for PUT /api/products/:id', async () => {
+        it('should return updated test PRODUCT name with authenticated user for PUT /api/products/:id', async () => {
             const response = await request(app).put(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_user}`)
                 .send({ "name": "updated" });
@@ -173,11 +141,19 @@ describe('Authentication & authorization API Tests', () => {
             expect(response.status).toBe(200);
         });
 
+        it('should return 401 for unauthenticated user on PUT /api/products/:id', async () => {
+            const response = await request(app).put(`/api/products/${createdProductId}`)
+                .send({ "name": "updated" });
+
+            expect(response.error.text).toEqual('No Bearer auth header found in "authenticateAccessToken"');
+            expect(response.status).toBe(401);
+        });
+
         it('should return 403 with a non admin user for DELETE /api/products/:id', async () => {
             const response = await request(app).delete(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_user}`);
 
-            expect(response.body.message).toEqual('No ADMIN role found on user');
+            expect(response.error.text).toEqual('No ADMIN role found on user');
             expect(response.status).toBe(403);
         });
 
@@ -187,6 +163,136 @@ describe('Authentication & authorization API Tests', () => {
 
             expect(response.body.message).toEqual('Success deleting product');
             expect(response.status).toBe(200);
+        });
+
+        describe('Login route tests POST /api/auth/', () => {
+
+            it('should set REFRESH_TOKEN cookie and return 200 upon login POST /api/auth/', async () => {
+                const response = await request(app).post('/api/auth/')
+                    .send({
+                        "username": `${testUser.username}`,
+                        "password": `password`
+                    });
+
+                expect(response.status).toBe(200);
+                expect(response.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
+            });
+        });
+
+        describe('Refresh route tests GET /api/auth/refresh', () => {
+        });
+
+        describe('Logout route tests GET /api/auth/logout', () => {
+
+            it.skip('should remove refresh token cookie when logging out user on /api/auth/logout',
+                async () => {
+                    //sign in
+                    const login = await request(app).post('/api/auth/')
+                        .send({
+                            "username": `${testUser.username}`,
+                            "password": `password`
+                        });
+
+                    expect(login.status).toBe(200);
+                    expect(login.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
+
+                    // const csrf = login.body.csrfToken;
+
+                    //sign out
+                    const response = await request(app).get('/api/auth/logout')
+                        .set('Cookie', `REFRESH_TOKEN=${refresh_token}`);
+                    console.log(response)
+                    console.log("REFRESH TOKEN", refresh_token)
+                    expect(response.header["set-cookie"]).toBeUndefined();
+                    expect(response.status).toBe(200);
+                }
+            );
+
+            it('should return 204 when logging out user with no refresh token (signed out) on /api/auth/logout',
+                async () => {
+
+                    //sign out
+                    const response = await request(app).get('/api/auth/logout');
+
+                    expect(response.header["set-cookie"]).toBeUndefined();
+                    expect(response.status).toBe(204);
+                }
+            );
+        });
+
+        describe('CSRF related PRODUCT tests', () => {
+
+            let csrf;
+            let refresh_token;
+
+            beforeAll(async () => {
+                // Generate JWT refresh token
+                refresh_token = jwt.sign({
+                    "RefreshInfo": {
+                        username: testUser.username
+                    }
+                },
+                    process.env.REFRESH_TOKEN_SECRET, {
+                    expiresIn: '1d'
+                });
+            });
+
+            beforeEach(async () => {
+
+                //sign in
+                const login = await request(app).post('/api/auth/')
+                    .send({
+                        "username": `${testUser.username}`,
+                        "password": `password`
+                    });
+
+                expect(login.status).toBe(200);
+                expect(login.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
+
+                csrf = login.body.csrfToken;
+            });
+
+
+            it('should return 200 when trying to add a PRODUCT while authorised for POST /api/products',
+                async () => {
+                    const response = await request(app).post('/api/products/')
+                        .set('authorization', `Bearer ${access_token_user}`)
+                        .send({
+                            "data": testProductToCreate,
+                            "csrf": csrf
+                        });
+
+                    // console.log(response.body)
+                    expect(response.status).toBe(200);
+                }
+            );
+
+            it('should return 401 unauthorised when trying to add a PRODUCT without access token in auth header for POST /api/products',
+                async () => {
+                    const response = await request(app).post('/api/products/')
+                        .send({
+                            "data": testProductToCreate,
+                            "csrf": csrf
+                        });
+
+                    expect(response.status).toBe(401);
+                    expect(response.error.text).toEqual('No Bearer auth header found in \"authenticateAccessToken\"');
+                }
+            );
+
+            it('should return 403 unauthorised when trying to add a PRODUCT with CORRUPT access token in auth header for POST /api/products',
+                async () => {
+                    const response = await request(app).post('/api/products/')
+                        .set('authorization', `Bearer ${access_token_corrupt}`)
+                        .send({
+                            "data": testProductToCreate,
+                            "csrf": csrf
+                        });
+
+                    expect(response.status).toBe(403);
+                    expect(response.error.text).toEqual('Invalid access token');
+                }
+            );
         });
     });
 });

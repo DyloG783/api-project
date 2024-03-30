@@ -15,7 +15,7 @@ function verifyAdmin(req, res, next) {
             const roles = decoded.UserInfo.roles;
             // console.log("ROLES: ", roles);
             // console.log("ROLES type: ", typeof roles);
-            if (!roles.find(role => role === 2)) return res.status(403).json({ "message": "No ADMIN role found on user" })
+            if (!roles.find(role => role === 2)) return res.status(403).send("No ADMIN role found on user");
             req.roles = decoded.UserInfo.roles;
             req.roles = decoded.UserInfo.username;
             next();

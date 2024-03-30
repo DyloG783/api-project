@@ -86,8 +86,7 @@ describe('User route & authorization Tests', () => {
         await mongoose.connection.close();
     });
 
-
-    describe('login related PRODUCT tests', () => {
+    describe('login related User tests', () => {
 
         let csrf;
         let refresh_token;
@@ -119,6 +118,7 @@ describe('User route & authorization Tests', () => {
             csrf = login.body.csrfToken;
         });
 
+        // JWT, CSRF & DB
         describe('getUsers test GET /api/user/', () => {
 
             it('should return status 200 for admin authenticated user for GET /api/user/', async () => {

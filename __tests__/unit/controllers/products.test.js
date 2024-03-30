@@ -9,7 +9,7 @@ beforeEach(() => {
 
 describe('GET /api/products/', () => {
 
-    it('should handle "getProducts" function happy path GET /api/products/', async () => {
+    it('"getProducts" function happy path getProducts returns 200', async () => {
 
         Product.find.mockReturnValueOnce({ message: 'Test data' });
 
@@ -25,7 +25,7 @@ describe('GET /api/products/', () => {
         expect(res.json).toHaveBeenCalledWith({ message: 'Test data' });
     });
 
-    it('should handle "getProducts" db error GET /api/products/', async () => {
+    it('"getProducts" db error getProducts', async () => {
 
         Product.find.mockImplementationOnce(() => {
             throw new Error('Test error');

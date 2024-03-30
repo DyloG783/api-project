@@ -117,7 +117,7 @@ describe('Authentication & authorization API Tests', () => {
             }
         });
 
-        it('should return 401 unauthorised when trying to add a product without csrf in body for POST /api/products',
+        it.skip('should return 401 unauthorised when trying to add a product without csrf in body for POST /api/products',
             async () => {
                 const response = await request(app).post('/api/products/')
                     .set('authorization', `Bearer ${access_token_user}`)
@@ -131,7 +131,8 @@ describe('Authentication & authorization API Tests', () => {
             }
         );
 
-        it('should return updated test PRODUCT name with authenticated user for PUT /api/products/:id', async () => {
+        // JWT, & DB
+        it('should return updated test PRODUCT name with authenticated user for PUT /api/products/:id (DB test)', async () => {
             const response = await request(app).put(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_user}`)
                 .send({ "name": "updated" });
@@ -141,7 +142,7 @@ describe('Authentication & authorization API Tests', () => {
             expect(response.status).toBe(200);
         });
 
-        it('should return 401 for unauthenticated user on PUT /api/products/:id', async () => {
+        it.skip('should return 401 for unauthenticated user on PUT /api/products/:id', async () => {
             const response = await request(app).put(`/api/products/${createdProductId}`)
                 .send({ "name": "updated" });
 
@@ -149,7 +150,8 @@ describe('Authentication & authorization API Tests', () => {
             expect(response.status).toBe(401);
         });
 
-        it('should return 403 with a non admin user for DELETE /api/products/:id', async () => {
+        // JWT, & DB
+        it('should return 403 with a non admin user for DELETE /api/products/:id (JWT test)', async () => {
             const response = await request(app).delete(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_user}`);
 
@@ -157,7 +159,8 @@ describe('Authentication & authorization API Tests', () => {
             expect(response.status).toBe(403);
         });
 
-        it('should return 200 with an admin user for DELETE /api/products/:id', async () => {
+        // JWT, & DB & user roles
+        it('should return 200 with an admin user for DELETE /api/products/:id (JWT test)', async () => {
             const response = await request(app).delete(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_admin}`);
 

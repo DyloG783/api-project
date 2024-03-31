@@ -25,10 +25,16 @@ Security Headers: Utilize security headers such as Content Security Policy (CSP)
 Input Validation: Validate and sanitize all input received from clients to prevent injection attacks such as SQL injection, XSS (Cross-Site Scripting), and CSRF (Cross-Site Request Forgery).
 
 --
+convert to TS
+- tests fun first?
+- changing import types?
+- then...
 
 Finish security
 
-convert to TS
+cors package not working as I can use DEL http methods?
+
+more unit tests - learn partial mocking
 
 create nice reademe
 

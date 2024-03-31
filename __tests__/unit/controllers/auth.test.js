@@ -282,7 +282,7 @@ describe('Auth controller Tests', () => {
             expect(res.clearCookie).toHaveBeenCalledTimes(1);
         });
 
-        it(`returns 204 if no cookie called REFRESH_TOKEN exists`, async () => {
+        it(`returns 204 if no cookie named REFRESH_TOKEN exists`, async () => {
 
             const req = {
                 cookies: []

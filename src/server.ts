@@ -3,8 +3,8 @@ import app from './app.js';
 
 const PORT = process.env.PORT || "3000";
 
-//connect to mongoose
-mongoose.connect(`${process.env.MONGOOSE}`)
+// Connect to mongoose
+mongoose.connect(`${process.env.MONGOOSE_CLOUD_CONNECTION}`)
     .then(() => {
         console.log("Success connecting to db");
     })
@@ -12,7 +12,7 @@ mongoose.connect(`${process.env.MONGOOSE}`)
         console.log("Failed connecting to db: ", error);
     });
 
-// start server 
+// Start server 
 const server = app.listen(PORT, () => {
     console.log(`Running on port ${PORT}`);
 });

@@ -7,10 +7,12 @@ export default function authenticateAccessToken(req: Request, res: Response, nex
 
     const authHeader = req.headers.authorization || req.headers.Authorization;
 
+    // Validate Bearer token exists in request header
     if (!authHeader || typeof authHeader !== "string" || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: "No Bearer auth header found in authenticateAccessToken" });
     };
 
+    // Validate Bearer token
     const token = authHeader.split(' ')[1];
     jwt.verify(
         token,
@@ -21,5 +23,3 @@ export default function authenticateAccessToken(req: Request, res: Response, nex
         }
     );
 };
-
-// module.exports = { authenticateAccessToken };

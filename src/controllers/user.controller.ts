@@ -1,14 +1,17 @@
+import { zIdParamSchema, zLoginSchema } from '../../zod/schema';
 import User from '../models/user.model';
-// const User = require('../../models/user.model.js');
 import hashPassword from '../util/hashPassword';
-
 import { Request, Response } from "express";
 
 export const getUser = async (req: Request, res: Response) => {
     try {
 
-        const { id } = req.params;
-        const user = await User.findById(id);
+        // Validate request params
+        const input = zIdParamSchema.safeParse(req.params);
+        if (!input.success) return res.status(400).json({ "message": "Invalid product id" });
+
+        // Return user from db
+        const user = await User.findById(req.params);
         res.status(200).json(user);
     } catch (error: any) {
         console.log(error)
@@ -19,6 +22,7 @@ export const getUser = async (req: Request, res: Response) => {
 export const getUsers = async (req: Request, res: Response) => {
     try {
 
+        // Return all users from db
         const users = await User.find({});
         res.status(200).json(users);
     } catch (error: any) {
@@ -30,25 +34,22 @@ export const getUsers = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
     try {
 
-        const { username, password } = req.body;
-
-        if (!username || !password) {
-            return res.status(400).send("Missing email or password from create user request");
-        }
+        // Authenticate user input
+        const input = zLoginSchema.safeParse(req.body);
+        if (!input.success) return res.status(400).json({ "message": "Missing email or password from login request" });
+        const { username, password } = input.data;
 
         const hashedPassword = await hashPassword(password);
 
+        // Create user in db
         const user = await User.create({
             username: username,
             password: hashedPassword
         });
+
         res.status(200).json(user);
     } catch (error: any) {
         console.log(error)
         res.status(500).json({ message: error.message })
     }
 };
-
-// module.exports = {
-//     getUser, getUsers, createUser
-// };

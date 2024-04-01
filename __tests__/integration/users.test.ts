@@ -15,10 +15,10 @@ describe('User route & authorization Tests', () => {
 
         // connect to testinstance db for particular testfile
         try {
-            await mongoose.connect(`${process.env.MONGOOSE_DEV}/users`);
+            await mongoose.connect(`${process.env.MONGOOSE_DEV_CONNECTION}/users`);
 
         } catch (error) {
-            console.log("Failed connecting to MONGOOSE_DEV auth:  ", error);
+            console.log("Failed connecting to MONGOOSE_DEV_CONNECTION auth:  ", error);
             return;
         }
 

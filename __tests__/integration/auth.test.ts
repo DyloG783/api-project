@@ -22,12 +22,12 @@ describe('Authentication & authorization API Tests', () => {
 
         // connect to testinstance db for particular testfile
         try {
-            await mongoose.connect(`${process.env.MONGOOSE_DEV}/auth`);
+            await mongoose.connect(`${process.env.MONGOOSE_DEV_CONNECTION}/auth`);
 
-            // console.log("Success connecting to MONGOOSE_DEV");
+            // console.log("Success connecting to MONGOOSE_DEV_CONNECTION");
 
         } catch (error) {
-            console.log("Failed connecting to MONGOOSE_DEV auth:  ", error);
+            console.log("Failed connecting to MONGOOSE_DEV_CONNECTION auth:  ", error);
             return;
         }
 
@@ -143,8 +143,7 @@ describe('Authentication & authorization API Tests', () => {
                     "price": 1234
                 });
 
-            expect(response.body.name).toBe('updated');
-            expect(response.body._id).toBe(createdProductId);
+            expect(response.body).toEqual({ "message": "Updated product" });
             expect(response.status).toBe(200);
         });
 

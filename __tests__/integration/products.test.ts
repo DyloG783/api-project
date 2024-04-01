@@ -17,9 +17,9 @@ describe('API Tests', () => {
 
         // connect to testinstance db for particular testfile
         try {
-            await mongoose.connect(`${process.env.MONGOOSE_DEV}/products`);
+            await mongoose.connect(`${process.env.MONGOOSE_DEV_CONNECTION}/products`);
         } catch (error) {
-            console.log("Failed connecting to MONGOOSE_DEV products: ", error);
+            console.log("Failed connecting to MONGOOSE_DEV_CONNECTION products: ", error);
             return;
         }
 

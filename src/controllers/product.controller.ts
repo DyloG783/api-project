@@ -37,6 +37,7 @@ export const createProduct = async (req: Request, res: Response) => {
         return;
     }
 
+    // create product in db
     try {
         const product = await Product.create(req.body.data);
         res.status(200).json(product);
@@ -47,39 +48,32 @@ export const createProduct = async (req: Request, res: Response) => {
 }
 
 export const updateProduct = async (req: Request, res: Response) => {
-    try {
 
-        // Authenticate user input
-        const input = zProductSchema.safeParse(req.body);
-        if (!input.success) return res.status(400).json({ "message": "Invalid product data" });
+    // Validate request body
+    const input = zProductSchema.safeParse(req.body);
+    if (!input.success) return res.status(400).json({ "message": "Invalid product data" });
 
-        // Authenticate user input
-        const params = zIdParamSchema.safeParse(req.params);
-        if (!params.success) {
-            return res.status(400).json({ "message": "Invalid product id" });
-        }
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body);
-
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        const updatedProduct = await Product.findById(req.params.id);
-        res.status(200).json(updatedProduct);
-
-    } catch (error: any) {
-        console.log(error);
-        res.status(500).json({ message: error.message });
+    // Validate request params
+    const params = zIdParamSchema.safeParse(req.params);
+    if (!params.success) {
+        return res.status(400).json({ "message": "Invalid product id" });
     }
+
+    // Update product
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body);
+    if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
+
+    res.status(200).json({ message: "Updated product" });
 }
 
 export const deleteProduct = async (req: Request, res: Response) => {
     try {
 
-        // Authenticate user input
+        // Validate request params
         const input = zIdParamSchema.safeParse(req.params);
         if (!input.success) return res.status(400).json({ "message": "Invalid product id" });
 
+        // Delete product from db
         const product = await Product.findByIdAndDelete(req.params.id);
 
         if (!product) {
@@ -87,7 +81,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
         }
 
         res.status(200).json({ message: "Success deleting product" });
-
     } catch (error: any) {
         console.log(error);
         res.status(500).json({ message: error.message });

@@ -30,13 +30,13 @@ describe('authenticateCsrf middleware Tests', () => {
         };
         const res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn()
+            json: jest.fn()
         };
         const next = {};
 
         authenticateCsrf(req as any, res as any, next as any);
         expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.send).toHaveBeenCalledWith(`No csrf in body`);
+        expect(res.json).toHaveBeenCalledWith({ "message": "No csrf in body" });
     });
 
     it('returns 401 if no csrf token is not correct', () => {
@@ -48,12 +48,12 @@ describe('authenticateCsrf middleware Tests', () => {
         };
         const res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn()
+            json: jest.fn()
         };
         const next = {};
 
         authenticateCsrf(req as any, res as any, next as any);
         expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.send).toHaveBeenCalledWith(`Failed csrf verification between refresh token and instance from auth controller`);
+        expect(res.json).toHaveBeenCalledWith({ "message": "Failed csrf verification between refresh token and instance from auth controller" });
     });
 });

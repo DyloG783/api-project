@@ -10,7 +10,3 @@ export default async function hashPassword(password: string) {
         throw new Error('Error hashing password');
     }
 };
-
-// module.exports = {
-//     hashPassword
-// };

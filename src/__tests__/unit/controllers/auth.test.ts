@@ -1,33 +1,51 @@
 
+// jest.mock('../../../models/user.model', () => {
+//     return {
+//         __esModule: true,
+//         default: jest.fn(), // called with name i.e. User?
+//         findOne: jest.fn(() => return {
+//             "username": "testuser",
+//             "password": "password"
+//         })
+//     }
+
+// });
 // jest.mock('../../../models/user.model', () => ({
-//     __esModule: true,
-//     default: 'mockedUser',
+//     User: jest.fn(),
 // }));
 // jest.unstable_mockModule('../../../models/user.model', () => ({
 //     findOne: jest.fn(),
 //     findByIdAndUpdate: jest.fn()
 // }));
 
-import { jest } from '@jest/globals';
+import { expect, jest, it, describe } from '@jest/globals';
 const jwt = require('jsonwebtoken');
-import User from '../../../models/user.model';
 const crypto = require('crypto');
-const comparePassword = require('../../../util/comparePassword');
+
 import { login, refreshToken, logout, returnCsrfToken } from '../../../controllers/auth.controller';
-jest.mock('../../../util/comparePassword');
+// jest.mock('../../../util/comparePassword');
+import comparePassword from '../../../util/comparePassword';
+// const comparePassword = require('../../../util/comparePassword');
+
+// import User from '../../../models/user.model';
+import type { Model } from 'mongoose';
+jest.mock('../../../models/user.model');
+let mockedUser: jest.Mocked<typeof Model>
+// const User = require('../../../models/user.model');
+
 jest.mock('crypto');
 jest.mock('jsonwebtoken');
-// jest.mock('../../../models/user.model');
-jest.mock('../../../models/user.model', () => ({
-    User: jest.fn(),
-}));
+
 // Cast to any to suppress TypeScript error
-const MockedUser = User as any;
+// const MockedUser = User as any;
 
 describe('Auth controller Tests', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
+    // afterEach(() => {
+    //     mockedUser.mockClear();
+    // });
 
     const test_user = {
         "username": "testuser",
@@ -43,14 +61,14 @@ describe('Auth controller Tests', () => {
 
         it(`login updates csrf token and sends in JSON body & "returnCsrfToken" func`, async () => {
 
-            MockedUser.findOne.mockImplementationOnce(() => {
+            mockedUser.findOne.mockImplementationOnce(() => {
                 return {
                     "username": "testuser",
                     "password": "password"
-                };
+                }
             });
 
-            MockedUser.findByIdAndUpdate.mockImplementationOnce(() => {
+            mockedUser.findByIdAndUpdate.mockImplementationOnce(() => {
                 return
             });
 
@@ -132,7 +150,7 @@ describe('Auth controller Tests', () => {
 
         it(`login returns 404 if user does not exist in db`, async () => {
 
-            MockedUser.findOne.mockImplementationOnce(() => {
+            mockedUser.findOne.mockImplementationOnce(() => {
                 return undefined;
             });
 
@@ -155,7 +173,7 @@ describe('Auth controller Tests', () => {
 
         it(`login returns 401 password does not match hashed db`, async () => {
 
-            MockedUser.findOne.mockImplementationOnce(() => {
+            mockedUser.findOne.mockImplementationOnce(() => {
                 return {
                     "username": "testuser",
                     "password": "password"
@@ -185,7 +203,7 @@ describe('Auth controller Tests', () => {
 
         it(`login creates REFRESH_TOKEN cookie in response`, async () => {
 
-            MockedUser.findOne.mockImplementationOnce(() => {
+            mockedUser.findOne.mockImplementationOnce(() => {
                 return {
                     "username": "testuser",
                     "password": "password"
@@ -245,7 +263,7 @@ describe('Auth controller Tests', () => {
 
         it(`returns 200 and access token happy path`, async () => {
 
-            MockedUser.findOne.mockImplementationOnce(() => {
+            mockedUser.findOne.mockImplementationOnce(() => {
                 return test_user;
             });
 
@@ -275,11 +293,11 @@ describe('Auth controller Tests', () => {
     describe('logout function Tests', () => {
         it(`returns 200 and calls clearCookie happy path`, async () => {
 
-            MockedUser.findOne.mockImplementationOnce(() => {
+            mockedUser.findOne.mockImplementationOnce(() => {
                 return {};
             });
 
-            MockedUser.findByIdAndUpdate.mockImplementationOnce(() => {
+            mockedUser.findByIdAndUpdate.mockImplementationOnce(() => {
                 return {};
             });
 

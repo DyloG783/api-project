@@ -4,7 +4,10 @@
   "description": "",
   "main": "./src/server.js",
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "testPathIgnorePatterns": [
+      "/built/__tests__"
+    ]
   },
   "scripts": {
     "server": "node ./built/server",

@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals';
 import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, } from '../../../controllers/product.controller';
 
-// jest.mock('../../../models/product.model', () => ({
-//     Product: jest.fn(),
-// }));
 jest.mock('../../../models/product.model', () => ({
-    default: jest.fn().mockImplementation(() => ({
-        find: jest.fn(), // Mocking find method
-
-    })),
+    Product: jest.fn(),
 }));
 import Product from '../../../models/product.model';
+// jest.mock('../../../models/product.model', () => ({
+//     default: jest.fn().mockImplementation(() => ({
+//         find: jest.fn(), // Mocking find method
+//     })),
+// }));
+// import Product from '../../../models/product.model';
 
 
 // Cast to any to suppress TypeScript error

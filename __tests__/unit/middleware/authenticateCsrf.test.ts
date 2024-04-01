@@ -1,7 +1,7 @@
-import authenticateCsrf from "../../../middleware/authenticateCsrf.middleware";
-const { returnCsrfToken } = require('../../../controllers/auth.controller');
+import authenticateCsrf from "../../../src/middleware/authenticateCsrf.middleware";
+const { returnCsrfToken } = require('../../../src/controllers/auth.controller');
 
-jest.mock('../../../controllers/auth.controller');
+jest.mock('../../../src/controllers/auth.controller');
 
 beforeEach(() => {
     jest.clearAllMocks();

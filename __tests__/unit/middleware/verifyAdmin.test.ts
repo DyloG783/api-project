@@ -1,6 +1,6 @@
 // const jwt = require('jsonwebtoken');
 const jwt = require('jsonwebtoken');
-import verifyAdmin from "../../../middleware/verifyAdmin.middleware";
+import verifyAdmin from "../../../src/middleware/verifyAdmin.middleware";
 import { jest } from '@jest/globals';
 
 jest.mock('jsonwebtoken');

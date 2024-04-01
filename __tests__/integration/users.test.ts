@@ -1,8 +1,8 @@
 import request from 'supertest';
-import User from '../../models/user.model';
+import User from '../../src/models/user.model';
 import mongoose from 'mongoose';
-import app from '../../app';
-import hashPassword from '../../util/hashPassword';
+import app from '../../src/app';
+import hashPassword from '../../src/util/hashPassword';
 import jwt from 'jsonwebtoken';
 
 describe('User route & authorization Tests', () => {

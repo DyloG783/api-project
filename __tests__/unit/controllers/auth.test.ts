@@ -2,11 +2,11 @@ import { expect, jest, it, describe } from '@jest/globals';
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-import { login, refreshToken, logout, returnCsrfToken } from '../../../controllers/auth.controller';
-import * as comparePasswordModule from '../../../util/comparePassword';
+import { login, refreshToken, logout, returnCsrfToken } from '../../../src/controllers/auth.controller';
+import * as comparePasswordModule from '../../../src/util/comparePassword';
 
 // import User from '../../../models/user.model';
-jest.mock('../../../models/user.model', () => ({
+jest.mock('../../../src/models/user.model', () => ({
     findOne: jest.fn().mockImplementation(() => {
         return {
             "username": "testuser",
@@ -19,7 +19,7 @@ jest.mock('../../../models/user.model', () => ({
 }));
 
 // default exports need to be mocked differently
-jest.mock('../../../util/comparePassword', () => ({
+jest.mock('../../../src/util/comparePassword', () => ({
     __esModule: true,
     default: jest.fn<() => Promise<boolean>>().mockResolvedValue(true),
 }));
@@ -66,8 +66,6 @@ describe('Auth controller Tests', () => {
             };
 
             await login(req as any, res as any);
-
-            console.log("res.jsdon", returnCsrfToken())
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledTimes(1);

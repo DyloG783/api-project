@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Product from '../models/product.model';
-// const Product = require('../models/product.model.js');
+import { zProductSchema, zIdParamSchema } from '../../zod/schema';
 
 export const getProducts = async (req: Request, res: Response) => {
     try {
@@ -16,8 +16,11 @@ export const getProducts = async (req: Request, res: Response) => {
 export const getProduct = async (req: Request, res: Response) => {
     try {
 
-        const { id } = req.params;
-        const product = await Product.findById(id);
+        // Authenticate user input
+        const input = zIdParamSchema.safeParse(req.params);
+        if (!input.success) return res.status(400).json({ "message": "Invalid product id" });
+
+        const product = await Product.findById(req.params.id);
         res.status(200).json(product);
     } catch (error: any) {
         console.log(error)
@@ -26,8 +29,15 @@ export const getProduct = async (req: Request, res: Response) => {
 }
 
 export const createProduct = async (req: Request, res: Response) => {
-    try {
 
+    // Authenticate user input
+    const input = zProductSchema.safeParse(req.body.data);
+    if (!input.success) {
+        res.status(400).json({ "message": "Invalid product data" });
+        return;
+    }
+
+    try {
         const product = await Product.create(req.body.data);
         res.status(200).json(product);
     } catch (error: any) {
@@ -39,14 +49,22 @@ export const createProduct = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
     try {
 
-        const { id } = req.params;
-        const product = await Product.findByIdAndUpdate(id, req.body);
+        // Authenticate user input
+        const input = zProductSchema.safeParse(req.body);
+        if (!input.success) return res.status(400).json({ "message": "Invalid product data" });
+
+        // Authenticate user input
+        const params = zIdParamSchema.safeParse(req.params);
+        if (!params.success) {
+            return res.status(400).json({ "message": "Invalid product id" });
+        }
+        const product = await Product.findByIdAndUpdate(req.params.id, req.body);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        const updatedProduct = await Product.findById(id);
+        const updatedProduct = await Product.findById(req.params.id);
         res.status(200).json(updatedProduct);
 
     } catch (error: any) {
@@ -58,8 +76,11 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
     try {
 
-        const { id } = req.params;
-        const product = await Product.findByIdAndDelete(id);
+        // Authenticate user input
+        const input = zIdParamSchema.safeParse(req.params);
+        if (!input.success) return res.status(400).json({ "message": "Invalid product id" });
+
+        const product = await Product.findByIdAndDelete(req.params.id);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
@@ -72,12 +93,3 @@ export const deleteProduct = async (req: Request, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-
-// module.exports = {
-//     getProducts,
-//     getProduct,
-//     createProduct,
-//     updateProduct,
-//     deleteProduct
-// }

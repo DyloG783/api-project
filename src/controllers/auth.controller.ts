@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
-// const User = require('../../models/user.model.js');
 import crypto from 'crypto';
 import comparePassword from '../util/comparePassword';
+import { zLoginSchema } from '../../zod/schema';
 
 let csrfToken: string | null = null;
 
@@ -12,12 +11,12 @@ let csrfToken: string | null = null;
 export const login = async (req: Request, res: Response) => {
     let user;
 
-    // Authenticate user
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ "message": "Missing email or password from login request" });
-    }
+    // Authenticate user input
+    const input = zLoginSchema.safeParse(req.body);
+    if (!input.success) return res.status(400).json({ "message": "Missing email or password from login request" });
+    const { username, password } = input.data;
 
+    // retrieve user from db
     try {
         user = await User.findOne({ username: username });
         if (!user) return res.status(404).json({ "message": "No user with this username found in db" });
@@ -30,7 +29,6 @@ export const login = async (req: Request, res: Response) => {
     if (! await comparePassword(password, hashedPassword)) {
         return res.status(401).json({ 'message': 'Incorrect password' });
     }
-
 
     csrfToken = crypto.randomUUID();
 
@@ -61,7 +59,6 @@ export const login = async (req: Request, res: Response) => {
     } catch (error) {
         console.log("Error in Auth controller attempting to update user with refresh token");
     }
-
 
     // save jwt as cookie
     res.cookie('REFRESH_TOKEN', refresh_token, { httpOnly: true, sameSite: 'strict', secure: true, maxAge: 24 * 60 * 60 * 1000 }); // 1 day

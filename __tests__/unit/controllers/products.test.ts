@@ -1,8 +1,8 @@
 import { jest } from '@jest/globals';
-import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, } from '../../../controllers/product.controller';
-// import User from '../../../models/product.model';
+import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, } from '../../../src/controllers/product.controller';
+// import User from '../../../src/models/product.model';
 
-jest.mock('../../../models/product.model', () => ({
+jest.mock('../../../src/models/product.model', () => ({
     find: jest.fn().mockImplementation(() => {
         return { message: 'Test data' };
     }),

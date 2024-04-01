@@ -1,8 +1,8 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
 // const Product = require('../../models/product.model.js');
-import Product from '../../models/product.model';
-import app from '../../app';
+import Product from '../../src/models/product.model';
+import app from '../../src/app';
 
 describe('API Tests', () => {
 

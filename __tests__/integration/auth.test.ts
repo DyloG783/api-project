@@ -3,13 +3,13 @@
 import request from 'supertest';
 // const jwt = require('jsonwebtoken');
 import jwt from 'jsonwebtoken';
-import hashPassword from '../../util/hashPassword';
-import Product from '../../models/product.model';
+import hashPassword from '../../src/util/hashPassword';
+import Product from '../../src/models/product.model';
 // const Product = require('../../../models/product.model.js');
-import User from '../../models/user.model';
+import User from '../../src/models/user.model';
 // const User = require('../../models/user.model.js');
 import mongoose from 'mongoose';
-import app from '../../app';
+import app from '../../src/app';
 
 describe('Authentication & authorization API Tests', () => {
 
@@ -137,7 +137,11 @@ describe('Authentication & authorization API Tests', () => {
         it('should return updated test PRODUCT name with authenticated user for PUT /api/products/:id (DB test)', async () => {
             const response = await request(app).put(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_user}`)
-                .send({ "name": "updated" });
+                .send({
+                    "name": "updated",
+                    "quantity": 1234,
+                    "price": 1234
+                });
 
             expect(response.body.name).toBe('updated');
             expect(response.body._id).toBe(createdProductId);
@@ -165,6 +169,8 @@ describe('Authentication & authorization API Tests', () => {
         it('should return 200 with an admin user for DELETE /api/products/:id (JWT test)', async () => {
             const response = await request(app).delete(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_admin}`);
+
+            // console.log("temp test: ", createdProductId);
 
             expect(response.body.message).toEqual('Success deleting product');
             expect(response.status).toBe(200);

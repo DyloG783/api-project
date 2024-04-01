@@ -22,7 +22,9 @@ Using 'Morgan' package for logging request data.
 
 Security Headers: Utilize security headers such as Content Security Policy (CSP), X-Content-Type-Options, X-Frame-Options, and X-XSS-Protection to mitigate common web security vulnerabilities.
 
-Input Validation: Validate and sanitize all input received from clients to prevent injection attacks such as SQL injection, XSS (Cross-Site Scripting), and CSRF (Cross-Site Request Forgery).
+Input Validation:
+- Using 'Zod' library to validate and sanitise user input
+- ADD REGEX +
 
 --
 

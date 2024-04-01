@@ -124,13 +124,6 @@ export const logout = async (req: Request, res: Response) => {
 };
 
 // because token is stored here in app it needs to be passed dynamically for csrf middleware
-// function returnCsrfToken() {
-//     return csrfToken;
-// };
 export function returnCsrfToken() {
     return csrfToken;
 };
-
-// module.exports = {
-//     login, refreshToken, logout, returnCsrfToken
-// };

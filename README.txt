@@ -25,7 +25,6 @@ Security Headers: Utilize security headers such as Content Security Policy (CSP)
 Input Validation: Validate and sanitize all input received from clients to prevent injection attacks such as SQL injection, XSS (Cross-Site Scripting), and CSRF (Cross-Site Request Forgery).
 
 --
-fix proj module mock issue
 
 Finish security
 

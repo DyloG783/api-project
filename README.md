@@ -2,7 +2,7 @@
 
 This portfolio project is a demonstration of creating a NodeJs server using the popular Express framework!
 
-The focus is on testing and security, not real user experince. I want to showcase the usage of many reccomended security considerations, with thorough integration, and unit tests to add confidence to this working implementation.
+The focus is on testing and security, not real user experince. I want to showcase the usage of many recomended security considerations, with thorough integration, and unit tests to add confidence to this working implementation.
 
 The application itself is a simple API which allows public users to view products. Registered users of particular roles are authorised to take actions like create, update, or delete products.
 

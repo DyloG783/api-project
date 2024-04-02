@@ -1,6 +1,5 @@
 import express from 'express';
 const router = express.Router();
-// import router from 'express.Router';
 import { login, refreshToken, logout } from '../controllers/auth.controller';
 
 router.post('/', login);

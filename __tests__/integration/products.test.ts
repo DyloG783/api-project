@@ -1,10 +1,9 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
-// const Product = require('../../models/product.model.js');
 import Product from '../../src/models/product.model';
 import app from '../../src/app';
 
-describe('API Tests', () => {
+describe('Integration - Product public tests', () => {
 
     let testProductId: string;
     let testProduct = {
@@ -45,7 +44,7 @@ describe('API Tests', () => {
         expect(response.body).toMatchObject([testProduct]);
     });
 
-    it('should return test product for GET /api/products/:id', async () => {
+    it('should return test product for GET with params /api/products/:id', async () => {
         const response = await request(app).get(`/api/products/${testProductId}`);
         expect(response.body.name).toEqual('test_product');
         expect(response.status).toBe(200);

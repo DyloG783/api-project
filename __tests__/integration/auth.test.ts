@@ -1,17 +1,12 @@
-// import { jest } from '@jest/globals';
-// const request = require('supertest');
 import request from 'supertest';
-// const jwt = require('jsonwebtoken');
 import jwt from 'jsonwebtoken';
 import hashPassword from '../../src/util/hashPassword';
 import Product from '../../src/models/product.model';
-// const Product = require('../../../models/product.model.js');
 import User from '../../src/models/user.model';
-// const User = require('../../models/user.model.js');
 import mongoose from 'mongoose';
 import app from '../../src/app';
 
-describe('Authentication & authorization API Tests', () => {
+describe('Integration - Authentication & authorization tests', () => {
 
     let testUser: any;
     let access_token_user: string;
@@ -23,9 +18,6 @@ describe('Authentication & authorization API Tests', () => {
         // connect to testinstance db for particular testfile
         try {
             await mongoose.connect(`${process.env.MONGOOSE_DEV_CONNECTION}/auth`);
-
-            // console.log("Success connecting to MONGOOSE_DEV_CONNECTION");
-
         } catch (error) {
             console.log("Failed connecting to MONGOOSE_DEV_CONNECTION auth:  ", error);
             return;
@@ -87,8 +79,6 @@ describe('Authentication & authorization API Tests', () => {
         } catch (error) {
             console.log("Failed signing test jwts...: ", error)
         }
-
-
     });
 
     afterAll(async () => {
@@ -119,7 +109,7 @@ describe('Authentication & authorization API Tests', () => {
             }
         });
 
-        it.skip('should return 401 unauthorised when trying to add a product without csrf in body for POST /api/products',
+        it('should return 401 unauthorised when trying to add a product without csrf in body for POST /api/products',
             async () => {
                 const response = await request(app).post('/api/products/')
                     .set('authorization', `Bearer ${access_token_user}`)
@@ -128,8 +118,7 @@ describe('Authentication & authorization API Tests', () => {
                     });
 
                 expect(response.status).toBe(401);
-                expect(response.text).toEqual('No csrf in body');
-
+                expect(response.body).toEqual({ message: "No csrf in body" });
             }
         );
 
@@ -145,14 +134,6 @@ describe('Authentication & authorization API Tests', () => {
 
             expect(response.body).toEqual({ "message": "Updated product" });
             expect(response.status).toBe(200);
-        });
-
-        it.skip('should return 401 for unauthenticated user on PUT /api/products/:id', async () => {
-            const response = await request(app).put(`/api/products/${createdProductId}`)
-                .send({ "name": "updated" });
-
-            expect(response.text).toEqual('No Bearer auth header found in "authenticateAccessToken"');
-            expect(response.status).toBe(401);
         });
 
         // JWT, & DB
@@ -176,7 +157,6 @@ describe('Authentication & authorization API Tests', () => {
         });
 
         describe('Login route tests POST /api/auth/', () => {
-
             it('should set REFRESH_TOKEN cookie and return 200 upon login POST /api/auth/', async () => {
                 const response = await request(app).post('/api/auth/')
                     .send({
@@ -189,33 +169,7 @@ describe('Authentication & authorization API Tests', () => {
             });
         });
 
-        describe('Refresh route tests GET /api/auth/refresh', () => {
-        });
-
         describe('Logout route tests GET /api/auth/logout', () => {
-
-            it.skip('should remove refresh token cookie when logging out user on /api/auth/logout',
-                async () => {
-                    //sign in
-                    const login = await request(app).post('/api/auth/')
-                        .send({
-                            "username": `${testUser.username}`,
-                            "password": `password`
-                        });
-
-                    expect(login.status).toBe(200);
-                    expect(login.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
-
-                    //sign out
-                    const response = await request(app).get('/api/auth/logout')
-                        .set('Cookie', `REFRESH_TOKEN=test`);
-                    // console.log(response)
-                    // console.log("REFRESH TOKEN", refresh_token)
-                    expect(response.header["set-cookie"]).toBeUndefined();
-                    expect(response.status).toBe(200);
-                }
-            );
-
             it('should return 204 when logging out user with no refresh token (signed out) on /api/auth/logout',
                 async () => {
 
@@ -266,33 +220,14 @@ describe('Authentication & authorization API Tests', () => {
                         .set('authorization', `Bearer ${access_token_user}`)
                         .send({
                             "data": testProductToCreate,
-                            // "data": {
-                            //     "name": "<script>",
-                            //     "quantity": 10,
-                            //     "price": 99.99
-                            // },
                             "csrf": csrf
                         });
 
-                    // console.log(response.body)
                     expect(response.status).toBe(200);
                 }
             );
 
-            it('should return 401 unauthorised when trying to add a PRODUCT without access token in auth header for POST /api/products',
-                async () => {
-                    const response = await request(app).post('/api/products/')
-                        .send({
-                            "data": testProductToCreate,
-                            "csrf": csrf
-                        });
-
-                    expect(response.status).toBe(401);
-                    // expect(response.error.text).toEqual('No Bearer auth header found in \"authenticateAccessToken\"');
-                    expect(response.text).toEqual(`{\"message\":\"No Bearer auth header found in authenticateAccessToken\"}`);
-                }
-            );
-
+            // can't unit test this as can't unmock module in same test
             it('should return 403 unauthorised when trying to add a PRODUCT with CORRUPT access token in auth header for POST /api/products',
                 async () => {
                     const response = await request(app).post('/api/products/')

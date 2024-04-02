@@ -17,8 +17,9 @@ export const getProduct = async (req: Request, res: Response) => {
     try {
 
         // Authenticate user input
-        const input = zIdParamSchema.safeParse(req.params);
-        if (!input.success) return res.status(400).json({ "message": "Invalid product id" });
+        const params = zIdParamSchema.safeParse(req.params.id);
+        if (!params.success) return res.status(400).json({ "message": "Invalid product id" });
+
 
         const product = await Product.findById(req.params.id);
         res.status(200).json(product);
@@ -54,7 +55,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     if (!input.success) return res.status(400).json({ "message": "Invalid product data" });
 
     // Validate request params
-    const params = zIdParamSchema.safeParse(req.params);
+    const params = zIdParamSchema.safeParse(req.params.id);
     if (!params.success) {
         return res.status(400).json({ "message": "Invalid product id" });
     }
@@ -70,8 +71,8 @@ export const deleteProduct = async (req: Request, res: Response) => {
     try {
 
         // Validate request params
-        const input = zIdParamSchema.safeParse(req.params);
-        if (!input.success) return res.status(400).json({ "message": "Invalid product id" });
+        const params = zIdParamSchema.safeParse(req.params.id);
+        if (!params.success) return res.status(400).json({ "message": "Invalid product id" });
 
         // Delete product from db
         const product = await Product.findByIdAndDelete(req.params.id);

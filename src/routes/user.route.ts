@@ -1,6 +1,5 @@
 import express from 'express';
 const router = express.Router();
-// import router from 'express.Router';
 import { getUser, getUsers, createUser } from '../controllers/user.controller';
 
 import authenticateCsrf from "../middleware/authenticateCsrf.middleware";

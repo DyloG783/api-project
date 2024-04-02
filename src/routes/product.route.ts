@@ -1,7 +1,5 @@
-// const express = require('express');
 import express from 'express';
 const router = express.Router();
-// import router from 'express.Router';
 import { getProducts, getProduct, createProduct, updateProduct, deleteProduct, } from '../controllers/product.controller';
 import authenticateCsrf from "../middleware/authenticateCsrf.middleware";
 import verifyAdmin from "../middleware/verifyAdmin.middleware";

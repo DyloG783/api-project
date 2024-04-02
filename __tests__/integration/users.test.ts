@@ -5,7 +5,7 @@ import app from '../../src/app';
 import hashPassword from '../../src/util/hashPassword';
 import jwt from 'jsonwebtoken';
 
-describe('User route & authorization Tests', () => {
+describe('Integration - User route & authorization Tests', () => {
 
     let testUser: any;
     let access_token_user: string;
@@ -62,19 +62,6 @@ describe('User route & authorization Tests', () => {
                 }
             );
 
-            // access_token_corrupt = jwt.sign(
-            //     {
-            //         UserInfo: {
-            //             username: testUser.username,
-            //             roles: [1]
-            //         }
-            //     },
-            //     "notValidAccessTokenSecret",
-            //     {
-            //         expiresIn: '1m'
-            //     }
-            // );
-
         } catch (error) {
             console.log("Failed signing test jwts...: ", error)
         }
@@ -88,19 +75,6 @@ describe('User route & authorization Tests', () => {
     describe('login related User tests', () => {
 
         let csrf: string;
-        let refresh_token;
-
-        beforeAll(async () => {
-            // Generate JWT refresh token
-            refresh_token = jwt.sign({
-                "RefreshInfo": {
-                    username: testUser.username
-                }
-            },
-                process.env.REFRESH_TOKEN_SECRET!, {
-                expiresIn: '1d'
-            });
-        });
 
         beforeEach(async () => {
 
@@ -117,7 +91,6 @@ describe('User route & authorization Tests', () => {
             csrf = login.body.csrfToken;
         });
 
-        // JWT, CSRF & DB
         describe('getUsers test GET /api/user/', () => {
 
             it('should return status 200 for admin authenticated user for GET /api/user/', async () => {
@@ -141,7 +114,6 @@ describe('User route & authorization Tests', () => {
                     });
 
                 expect(response.status).toBe(403);
-                // expect(response.body.text).toEqual("No ADMIN role found on user");
                 expect(response.text).toEqual("No ADMIN role found on user");
             });
         });

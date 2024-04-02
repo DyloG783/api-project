@@ -1,11 +1,11 @@
 import { expect, jest, it, describe } from '@jest/globals';
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-
 import { login, refreshToken, logout, returnCsrfToken } from '../../../src/controllers/auth.controller';
 import * as comparePasswordModule from '../../../src/util/comparePassword';
 
-// import User from '../../../models/user.model';
+const User = require('../../../src/models/user.model');
+
 jest.mock('../../../src/models/user.model', () => ({
     findOne: jest.fn().mockImplementation(() => {
         return {
@@ -30,9 +30,6 @@ describe('Auth controller Tests', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
-    // afterEach(() => {
-    //     User.mockClear();
-    // });
 
     const test_user = {
         "username": "testuser",
@@ -118,21 +115,12 @@ describe('Auth controller Tests', () => {
             expect(res.json).toHaveBeenCalledWith({ "message": "Username or password validation failure" });
         });
 
-        // cant overwrite set mock function val for non default exports
-        it.skip(`login returns 404 if user does not exist in db`, async () => {
 
+        it(`login returns 404 if user does not exist in db`, async () => {
 
-            // jest.spyOn(User, 'findOne').mockResolvedValueOnce(() => {
-            //     return undefined;
-            // });
-
-            // jest.mock('../../../models/user.model', () => ({
-            //     findOne: jest.fn().mockImplementationOnce(() => {
-            //         return { undefined };
-            //     }),
-            // }));
-
-            // User.findOne.mockResolvedValueOnce(() => { return { undefined }; });
+            User.findOne.mockImplementationOnce(() => {
+                return undefined;
+            });
 
             const req = {
                 body: test_user
@@ -151,6 +139,7 @@ describe('Auth controller Tests', () => {
             expect(res.json).toHaveBeenCalledWith({ "message": "No user with this username found in db" });
         });
 
+        // can spy on and mock per test default exported functions
         it(`login returns 401 password does not match hashed db`, async () => {
 
             jest.spyOn(comparePasswordModule, 'default').mockResolvedValueOnce(false);
@@ -173,7 +162,6 @@ describe('Auth controller Tests', () => {
         });
 
         it(`login creates REFRESH_TOKEN cookie in response`, async () => {
-
 
             jwt.sign.mockImplementation(() => {
                 return null;
@@ -224,14 +212,14 @@ describe('Auth controller Tests', () => {
 
         it(`returns 200 and access token happy path`, async () => {
 
-            // User.findOne.mockImplementationOnce(() => {
-            //     return test_user;
-            // });
+            User.findOne.mockImplementationOnce(() => {
+                return test_user;
+            });
 
-            jwt.sign.mockImplementation(() => {
+            jwt.sign.mockImplementationOnce(() => {
                 return null;
             });
-            jwt.verify.mockImplementation(() => {
+            jwt.verify.mockImplementationOnce(() => {
                 return 'test_token';
             });
 
@@ -241,7 +229,6 @@ describe('Auth controller Tests', () => {
             const res = {
                 json: jest.fn(),
                 status: jest.fn().mockReturnThis(),
-                // send: jest.fn()
             };
 
             await refreshToken(req as any, res as any);
@@ -253,14 +240,6 @@ describe('Auth controller Tests', () => {
 
     describe('logout function Tests', () => {
         it(`returns 200 and calls clearCookie happy path`, async () => {
-
-            // User.findOne.mockImplementationOnce(() => {
-            //     return {};
-            // });
-
-            // User.findByIdAndUpdate.mockImplementationOnce(() => {
-            //     return {};
-            // });
 
             const req = {
                 cookies: { REFRESH_TOKEN: "null" }
@@ -286,7 +265,6 @@ describe('Auth controller Tests', () => {
             };
 
             await logout(req as any, res as any);
-
             expect(res.sendStatus).toHaveBeenCalledWith(204);
         });
     });

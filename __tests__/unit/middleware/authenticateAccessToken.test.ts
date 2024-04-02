@@ -15,7 +15,7 @@ describe('authenticateAccessToken middleware Tests', () => {
         jwt.verify.mockImplementationOnce(next);
 
         const req = {
-            headers: { 'Authorization': 'Bearer your_token', }
+            headers: { 'Authorization': 'Bearer test', }
         };
         const res = {};
 

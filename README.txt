@@ -6,10 +6,10 @@ Authentication:
 - Using 'jsonwebtoken' package for client side authentication.
 
 Authorization: 
-- Using 'jsonwebtoken' package for refresh tokens, access tokens, and role based authorization.
+Using 'jsonwebtoken' package for refresh tokens, access tokens, and role based authorization.
 
 CSRF: 
-- Using CSRF tokens to help mitigate CSRF attacks.
+Using CSRF tokens to help mitigate CSRF attacks.
 
 CORS: 
 Using 'cors' package to restrict which http methods the api allows, plus forcing localhost domain only to be accepted.
@@ -18,13 +18,12 @@ Rate Limiting:
 Using 'express-rate-limit' package to limit ip addresses to 1000 requests per day.
 
 Logging and Monitoring: 
-Using 'Morgan' package for logging request data.
+Using 'morgan' package for logging request data.
 
 Security Headers: Utilize security headers such as Content Security Policy (CSP), X-Content-Type-Options, X-Frame-Options, and X-XSS-Protection to mitigate common web security vulnerabilities.
 
 Input Validation:
-- Using 'Zod' library to validate and sanitise user input
-- ADD REGEX +
+Using 'zod' package to validate and sanitise user input against potential malicious characters ie ":;"'<>$".
 
 --
 

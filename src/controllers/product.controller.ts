@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Product from '../models/product.model';
-import { zProductSchema, zIdParamSchema } from '../../zod/schema';
+import { zProductSchema, zIdParamSchema } from '../zod/schema';
 
 export const getProducts = async (req: Request, res: Response) => {
     try {

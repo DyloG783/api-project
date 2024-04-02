@@ -206,8 +206,6 @@ describe('Authentication & authorization API Tests', () => {
                     expect(login.status).toBe(200);
                     expect(login.header["set-cookie"][0]).toMatch(/REFRESH_TOKEN/);
 
-                    // const csrf = login.body.csrfToken;
-
                     //sign out
                     const response = await request(app).get('/api/auth/logout')
                         .set('Cookie', `REFRESH_TOKEN=test`);
@@ -262,13 +260,17 @@ describe('Authentication & authorization API Tests', () => {
                 csrf = login.body.csrfToken;
             });
 
-
             it('should return 200 when trying to add a PRODUCT while authorised for POST /api/products',
                 async () => {
                     const response = await request(app).post('/api/products/')
                         .set('authorization', `Bearer ${access_token_user}`)
                         .send({
                             "data": testProductToCreate,
+                            // "data": {
+                            //     "name": "<script>",
+                            //     "quantity": 10,
+                            //     "price": 99.99
+                            // },
                             "csrf": csrf
                         });
 

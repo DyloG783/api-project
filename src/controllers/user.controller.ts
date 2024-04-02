@@ -1,4 +1,4 @@
-import { zIdParamSchema, zLoginSchema } from '../../zod/schema';
+import { zIdParamSchema, zLoginSchema } from '../zod/schema';
 import User from '../models/user.model';
 import hashPassword from '../util/hashPassword';
 import { Request, Response } from "express";

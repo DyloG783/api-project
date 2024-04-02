@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import crypto from 'crypto';
 import comparePassword from '../util/comparePassword';
-import { zLoginSchema } from '../../zod/schema';
+import { zLoginSchema } from '../zod/schema';
 
 let csrfToken: string | null = null;
 
@@ -13,7 +13,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Authenticate user input
     const input = zLoginSchema.safeParse(req.body);
-    if (!input.success) return res.status(400).json({ "message": "Missing email or password from login request" });
+    if (!input.success) return res.status(400).json({ "message": "Username or password validation failure" });
     const { username, password } = input.data;
 
     // Retrieve user from db

@@ -93,7 +93,7 @@ describe('Auth controller Tests', () => {
             expect(res.json).toHaveBeenCalledTimes(1);
             expect(res.cookie).toHaveBeenCalledTimes(0);
 
-            expect(res.json).toHaveBeenCalledWith({ "message": "Missing email or password from login request" });
+            expect(res.json).toHaveBeenCalledWith({ "message": "Username or password validation failure" });
         });
 
         it(`login returns 400 if 'password' is not in request body`, async () => {
@@ -115,7 +115,7 @@ describe('Auth controller Tests', () => {
             expect(res.json).toHaveBeenCalledTimes(1);
             expect(res.cookie).toHaveBeenCalledTimes(0);
 
-            expect(res.json).toHaveBeenCalledWith({ "message": "Missing email or password from login request" });
+            expect(res.json).toHaveBeenCalledWith({ "message": "Username or password validation failure" });
         });
 
         // cant overwrite set mock function val for non default exports

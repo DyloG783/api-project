@@ -7,7 +7,12 @@ import { zLoginSchema } from '../zod/schema';
 
 let csrfToken: string | null = null;
 
-// Login endpoint to generate JWT token
+/**
+ * Auth controller handles authentication & authorisation functionality
+ * including CSRF token.
+ */
+
+// Login endpoint to generate JWT refresh and access tokens
 export const login = async (req: Request, res: Response) => {
     let user;
 
@@ -65,7 +70,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).json({ access_token, csrfToken });
 };
 
-// Refresh token returning access token as json
+// Refresh token returning access token
 export const refreshToken = async (req: Request, res: Response) => {
 
     const token = req.cookies.REFRESH_TOKEN;
@@ -121,7 +126,7 @@ export const logout = async (req: Request, res: Response) => {
     res.sendStatus(200);
 };
 
-// because token is stored here in app it needs to be passed dynamically for csrf middleware
+// return token for csrf middleware
 export function returnCsrfToken() {
     return csrfToken;
 };

@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-
-// const { returnCsrfToken } = require('../controllers/auth.controller');
 import { returnCsrfToken } from '../controllers/auth.controller';
+
+/**
+ * Validates the csrf token passed in from the request matches the app instance
+ */
 
 // Middleware for csrf token validation
 export default function authenticateCsrf(req: Request, res: Response, next: NextFunction) {

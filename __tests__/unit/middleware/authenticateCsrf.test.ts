@@ -7,7 +7,7 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('authenticateCsrf middleware Tests', () => {
+describe('Unit - "authenticateCsrf" middleware tests', () => {
 
     it('happy path runs the "next" function', () => {
 

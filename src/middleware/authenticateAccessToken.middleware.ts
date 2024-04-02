@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from "express";
 
 const jwt = require('jsonwebtoken');
 
+/**
+ * Validates the access token stored in the response headers Authorization Bearer token
+ */
+
 // Middleware for authorisation
 export default function authenticateAccessToken(req: Request, res: Response, next: NextFunction) {
 

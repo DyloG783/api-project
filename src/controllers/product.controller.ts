@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import Product from '../models/product.model';
 import { zProductSchema, zIdParamSchema } from '../zod/schema';
 
+/**
+ * Product controller handles standard CRUD operations against the db
+ */
+
 export const getProducts = async (req: Request, res: Response) => {
     try {
 

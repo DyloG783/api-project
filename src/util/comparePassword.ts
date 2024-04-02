@@ -1,5 +1,9 @@
 import bcrypt from 'bcrypt';
 
+/**
+ * Utility function to validate passwords against salted hash stored in the db
+ */
+
 export default async function comparePassword(plainPassword: string, hashedPassword: string) {
     try {
 

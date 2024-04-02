@@ -22,13 +22,13 @@ describe('Zod regex blocks malicious input attempts', () => {
 
     it('Rejects malicious user input - general special characters', async () => {
 
-        const params = zIdParamSchema.safeParse(`'"`);
+        const params = zIdParamSchema.safeParse(`http://malicious.com`);
         expect(params.success).toBeFalsy();
     });
 
     it('Rejects malicious user input - sql type special characters', async () => {
 
-        const params = zIdParamSchema.safeParse(`)(;:`);
+        const params = zIdParamSchema.safeParse(`;Product.findByIdAndDelete(test373rh7wr7y37w38rw)`);
         expect(params.success).toBeFalsy();
     });
 });

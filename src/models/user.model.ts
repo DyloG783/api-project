@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+/**
+ * Mongoose schema and model used in controller functions to interact with the database
+ */
+
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true, default: 0 },

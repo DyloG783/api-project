@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-
 const jwt = require('jsonwebtoken');
+
+/**
+ * Reads the access token stored in the response headers Authorization Bearer token
+ * and checks the user's roles (used in authorisation)
+ */
 
 // admin role check
 export default function verifyAdmin(req: Request, res: Response, next: NextFunction) {

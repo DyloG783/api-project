@@ -16,7 +16,7 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('GET /api/products/', () => {
+describe('Unit - GET /api/products/', () => {
 
     it('"getProducts" function happy path getProducts returns 200', async () => {
 

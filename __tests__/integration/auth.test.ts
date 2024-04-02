@@ -122,7 +122,6 @@ describe('Integration - Authentication & authorization tests', () => {
             }
         );
 
-        // JWT, & DB
         it('should return updated test PRODUCT name with authenticated user for PUT /api/products/:id (DB test)', async () => {
             const response = await request(app).put(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_user}`)
@@ -136,7 +135,6 @@ describe('Integration - Authentication & authorization tests', () => {
             expect(response.status).toBe(200);
         });
 
-        // JWT, & DB
         it('should return 403 with a non admin user for DELETE /api/products/:id (JWT test)', async () => {
             const response = await request(app).delete(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_user}`);
@@ -145,12 +143,9 @@ describe('Integration - Authentication & authorization tests', () => {
             expect(response.status).toBe(403);
         });
 
-        // JWT, & DB & user roles
         it('should return 200 with an admin user for DELETE /api/products/:id (JWT test)', async () => {
             const response = await request(app).delete(`/api/products/${createdProductId}`)
                 .set('authorization', `Bearer ${access_token_admin}`);
-
-            // console.log("temp test: ", createdProductId);
 
             expect(response.body.message).toEqual('Success deleting product');
             expect(response.status).toBe(200);

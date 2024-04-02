@@ -8,7 +8,7 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('verifyAdmin middleware Tests', () => {
+describe('Unit - "verifyAdmin" middleware tests', () => {
 
     it('happy path runs the "next" function', () => {
 

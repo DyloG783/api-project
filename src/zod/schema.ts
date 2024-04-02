@@ -5,7 +5,7 @@ const inputSanitzationRegex = new RegExp(`(^[a-zA-Z 0-9\.\,\+\-]*$)`);
 
 export const zLoginSchema = z.object({
     username: z.string().min(4).max(50).trim().regex(inputSanitzationRegex, { message: "Security sanitation failed. No special characters except ',.+-'" }),
-    password: z.string().min(5).max(50),
+    password: z.string().min(5).max(50).regex(inputSanitzationRegex, { message: "Security sanitation failed. No special characters except ',.+-'" }),
 });
 
 export const zProductSchema = z.object({

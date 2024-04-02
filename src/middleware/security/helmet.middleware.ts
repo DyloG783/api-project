@@ -9,5 +9,4 @@ const policy = {
 }
 
 const appSecurityHeaders = helmet(policy);
-
 export default appSecurityHeaders;

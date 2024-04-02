@@ -7,7 +7,7 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('authenticateAccessToken middleware Tests', () => {
+describe('Unit - "authenticateAccessToken" middleware tests', () => {
 
     it('should handle happy path with auth header & mocked token', async () => {
 

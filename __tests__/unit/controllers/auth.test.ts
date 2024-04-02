@@ -26,7 +26,7 @@ jest.mock('../../../src/util/comparePassword', () => ({
 jest.mock('crypto');
 jest.mock('jsonwebtoken');
 
-describe('Auth controller Tests', () => {
+describe('Unit - Auth controller Tests', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });

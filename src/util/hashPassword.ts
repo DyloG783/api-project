@@ -1,5 +1,9 @@
 import bcrypt from 'bcrypt';
 
+/**
+ * Utiltiy function to hash and salt passwords provided by users upon registration
+ */
+
 // Hash a plain text password with a generated salt and return hashed password
 export default async function hashPassword(password: string) {
     try {

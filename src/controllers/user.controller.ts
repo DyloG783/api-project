@@ -3,6 +3,10 @@ import User from '../models/user.model';
 import hashPassword from '../util/hashPassword';
 import { Request, Response } from "express";
 
+/**
+ * User controller handles standard CRUD operations against the db
+ */
+
 export const getUser = async (req: Request, res: Response) => {
     try {
 

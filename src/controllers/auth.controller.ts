@@ -91,7 +91,7 @@ export const refreshToken = async (req: Request, res: Response) => {
         });
 
         const accessToken = jwt.sign({ "UserInfo": { username: user.username, roles: user.roles } }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '30s' });
-        res.status(200).json({ accessToken });
+        res.status(200).json({ accessToken, csrfToken });
     } catch (error) {
         return res.status(500).json({ message: "DB failure finding user by refresh token" });
     }

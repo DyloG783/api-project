@@ -234,7 +234,7 @@ describe('Unit - Auth controller Tests', () => {
             await refreshToken(req as any, res as any);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ accessToken: null });
+            expect(res.json).toHaveBeenCalledWith({ accessToken: null, csrfToken: "test_csrf_token" });
         });
     });
 

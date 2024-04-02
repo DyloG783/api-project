@@ -11,11 +11,11 @@ export const getUser = async (req: Request, res: Response) => {
     try {
 
         // Validate request params
-        const input = zIdParamSchema.safeParse(req.params);
-        if (!input.success) return res.status(400).json({ "message": "Invalid product id" });
+        const input = zIdParamSchema.safeParse(req.params.id);
+        if (!input.success) return res.status(400).json({ "message": "Invalid user id" });
 
         // Return user from db
-        const user = await User.findById(req.params);
+        const user = await User.findById(req.params.id);
         res.status(200).json(user);
     } catch (error: any) {
         console.log(error)
@@ -39,8 +39,8 @@ export const createUser = async (req: Request, res: Response) => {
     try {
 
         // Authenticate user input
-        const input = zLoginSchema.safeParse(req.body);
-        if (!input.success) return res.status(400).json({ "message": "Missing email or password from login request" });
+        const input = zLoginSchema.safeParse(req.body.data);
+        if (!input.success) return res.status(400).json({ "message": "Missing username or password from login request" });
         const { username, password } = input.data;
 
         const hashedPassword = await hashPassword(password);

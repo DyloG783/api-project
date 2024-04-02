@@ -34,7 +34,7 @@ describe('Integration - User route & authorization Tests', () => {
             console.log("Failed creating test user from Mongoose...: ", error)
         }
 
-        //create access tokens for test user
+        //create access tokens (user, admin) for test user
         try {
             access_token_user = jwt.sign(
                 {
@@ -72,10 +72,11 @@ describe('Integration - User route & authorization Tests', () => {
         await mongoose.connection.close();
     });
 
-    describe('login related User tests', () => {
+    describe('csrf required User tests', () => {
 
         let csrf: string;
 
+        // signin required to generate csrf
         beforeEach(async () => {
 
             //sign in
@@ -93,7 +94,7 @@ describe('Integration - User route & authorization Tests', () => {
 
         describe('getUsers test GET /api/user/', () => {
 
-            it('should return status 200 for admin authenticated user for GET /api/user/', async () => {
+            it('should return status 200 and user object for admin authenticated user for GET /api/user/', async () => {
                 const response = await request(app).get('/api/user/')
                     .set('authorization', `Bearer ${access_token_admin}`)
                     .send({
@@ -110,6 +111,41 @@ describe('Integration - User route & authorization Tests', () => {
                 const response = await request(app).get('/api/user/')
                     .set('authorization', `Bearer ${access_token_user}`)
                     .send({
+                        "csrf": csrf
+                    });
+
+                expect(response.status).toBe(403);
+                expect(response.text).toEqual("No ADMIN role found on user");
+            });
+        });
+
+        describe('createUser test POST /api/user/', () => {
+
+            it('should return status 200 and user object for admin authenticated to create user', async () => {
+                const response = await request(app).post('/api/user/')
+                    .set('authorization', `Bearer ${access_token_admin}`)
+                    .send({
+                        "data": {
+                            "username": "test2",
+                            "password": "test2"
+                        },
+                        "csrf": csrf
+                    });
+
+                expect(response.status).toBe(200);
+                expect(response.body).toMatchObject({
+                    "username": "test2"
+                });
+            });
+
+            it('should return status 401 for non admin authenticated user for GET /api/user/', async () => {
+                const response = await request(app).post('/api/user/')
+                    .set('authorization', `Bearer ${access_token_user}`)
+                    .send({
+                        "data": {
+                            "username": "test2",
+                            "password": "test2"
+                        },
                         "csrf": csrf
                     });
 

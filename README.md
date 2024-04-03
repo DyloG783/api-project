@@ -15,14 +15,14 @@ Security features such as CSRF token management, refreshing of tokens, or CORS w
   - the ~production database is a cloud based Mongo db.
   - the test database is local.
 - Passwords are hashed and salted with the popular `Bcrypt` package.
-- `JWT` used for client side authentication.
+- `JWT` used for client side authentication, and authorisation.
 - Security features are discribed in more detail below.
 
 ## Testing
 
 Testing is managed by `Jest`, and `Supertest`!
 
-- Integration testing with Supertest allows non mocked end-to-end flow quality assurance.
+- Integration testing with Supertest allows non mocked end-to-end flow testing from request > middleware > response.
 - Unit testing with Jest mocks allows controllers and middleware to be tested seperately from the database or third party packages.
 
 ---
@@ -68,4 +68,4 @@ Testing is managed by `Jest`, and `Supertest`!
 
 ---
 
-> If you want to run this you will need to clone the repo and add these constants (ACCESS_TOKEN_SECRET (any string will do), REFRESH_TOKEN_SECRET(any string will do), MONGOOSE_CLOUD_CONNECTION(cloud connection uri), MONGOOSE_DEV_CONNECTION(local db connection string)) to a .env file in the root directory. Scripts are defined in package.json!
+> If you want to run this you will need to clone the repo and add these following constants to a .env file in the root directory. (ACCESS_TOKEN_SECRET (any string will do), REFRESH_TOKEN_SECRET(any string will do), MONGOOSE_CLOUD_CONNECTION(cloud connection uri to a real mongo db), MONGOOSE_DEV_CONNECTION(local db connection string to a real mongo db)). Scripts to run or test the application are defined in package.json!

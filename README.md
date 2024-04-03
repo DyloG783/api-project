@@ -29,15 +29,11 @@ Testing is managed by `Jest`, and `Supertest`!
 
 # Security Implementations
 
-## Authentication
+## Authentication / Authorization
 
 - Using 'bcrypt' package to salt and hash passwords.
-- Using 'cookie-parser' package to sign JWTs with environment variable secret.
-- Using 'jsonwebtoken' package for client side authentication.
-
-## Authorization
-
 - Using 'jsonwebtoken' package for refresh tokens, access tokens, and role based authorization.
+- Using 'cookie-parser' package to sign JWTs with environment variable secrets.
 
 ## CSRF
 

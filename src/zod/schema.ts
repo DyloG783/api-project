@@ -15,3 +15,5 @@ export const zProductSchema = z.object({
 });
 
 export const zIdParamSchema = z.string().min(5).max(1000).regex(inputSanitzationRegex, { message: "Security sanitation failed. No special characters except ',.+-'" });
+
+export const zStringSanitization = z.string().regex(inputSanitzationRegex, { message: "Security sanitation failed. No special characters except ',.+-'" });

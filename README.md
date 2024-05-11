@@ -16,7 +16,7 @@ Security features such as CSRF token management, refreshing of tokens, or CORS w
   - the test database is local.
 - Passwords are hashed and salted with the popular `Bcrypt` package.
 - `JWT` used for client side authentication, and authorisation.
-- Security features are discribed in more detail below.
+- Security features are described in more detail below.
 
 ## Testing
 
